@@ -1,0 +1,36 @@
+# =============================================================================
+# Login Page Elements and Test Data
+#
+# This YAML file contains all locators, test data, and constants used for
+# testing the SauceDemo login functionality. It includes CSS selectors for
+# page elements, expected error messages, and URLs for navigation testing.
+#
+# Element Categories:
+# - Input Elements: Username and password fields, login button
+# - Page Navigation: URLs and page containers  
+# - Error Handling: Error messages and error icon locators
+# - Validation Elements: Elements used to confirm login success/failure
+# =============================================================================
+
+# LOGIN FORM ELEMENTS
+# Main form input fields and action buttons
+USER_INPUT:   "css=form #user-name"      # Username input field in login form
+PASSWORD_INPUT: "css=form #password"     # Password input field in login form  
+LOGIN_BUTTON: "css=form #login-button"   # Submit button to perform login action
+
+# POST-LOGIN NAVIGATION ELEMENTS
+# Elements that appear after successful authentication
+INVENTORY_LOCATOR: "css=#inventory_container:first-of-type"  # Main container for product inventory page
+INVENTORY_URL:  "https://www.saucedemo.com/inventory.html"   # Direct URL to inventory page (requires auth)
+
+# ERROR MESSAGE CONSTANTS
+# Expected error messages for different login failure scenarios
+ERROR_TEXT: "Epic sadface: Username and password do not match any user in this service"  # Invalid credentials error
+ERROR_USER_REQUIRED: "Epic sadface: Username is required"        # Empty username field error
+ERROR_PASSWORD_REQUIRED: "Epic sadface: Password is required"    # Empty password field error  
+ERROR_ALL_REQUIRED: "Epic sadface: Username is required"         # Both fields empty error
+ACCCESS_ERROR_INVENTORY: "Epic sadface: You can only access '/inventory.html' when you are logged in."  # Unauthorized access error
+
+# ERROR UI ELEMENTS
+# Visual indicators for login validation errors
+ERROR_IMG: svg[role=img].error_icon:first-of-type  # Error icon selector (appears next to invalid fields)

@@ -1,0 +1,8 @@
+allure-robotframework>=2.13.1
+allure-python-commons>=2.15.0
+robotframework>=6.0.2
+robotframework-browser>=16.2.0
+robotframework-faker>=5.0.0
+robotframework-jsonlibrary>=0.5
+robotframework-pabot>=2.15.0
+pyyaml>=6.0.2

@@ -1,0 +1,43 @@
+# =============================================================================
+# Burger Menu Page Elements and Test Data
+#
+# This YAML file contains all locators, text constants, and test data used for
+# testing the burger menu (hamburger menu) functionality on the SauceDemo application.
+# The burger menu provides navigation options in a collapsible side panel.
+#
+# Element Categories:
+# - Menu Control Elements: Buttons for opening and closing the menu
+# - Menu Container Elements: The main menu structure and overlay
+# - Menu Navigation Links: Individual menu item links for different pages
+# - Menu Text Constants: Expected text content for menu items
+# - Menu State Indicators: Elements that indicate menu open/closed status
+# =============================================================================
+
+# MENU CONTROL ELEMENTS
+# Primary buttons for menu interaction
+BURGER_MENU_BUTTON: "css=button#react-burger-menu-btn"        # Hamburger button to open the menu
+BURGER_MENU_CROSS_BUTTON: "css=button#react-burger-cross-btn" # Cross (X) button to close the menu
+
+# MENU STRUCTURE ELEMENTS  
+# Container and layout elements for the burger menu
+BURGER_MENU_CONTAINER: "css=div.bm-menu"    # Main menu container that holds menu content
+BURGER_MENU_OVERLAY: "css=div.bm-overlay"   # Background overlay for closing menu by clicking outside
+
+# MENU NAVIGATION LINKS
+# Individual menu items that provide navigation to different pages
+ALL_ITEMS_LINK: "css=#inventory_sidebar_link"    # Link to return to main inventory/products page
+ABOUT_LINK: "css=#about_sidebar_link"            # Link to external SauceLabs company information page
+LOGOUT_LINK: "css=#logout_sidebar_link"          # Link to logout and return to login page
+RESET_APP_LINK: "css=#reset_sidebar_link"        # Link to reset application state (clear cart, filters, etc.)
+
+# MENU TEXT CONSTANTS
+# Expected text content for menu items (used for validation)
+ALL_ITEMS_TEXT: "All Items"        # Expected text for inventory navigation link
+ABOUT_TEXT: "About"                # Expected text for about page link
+LOGOUT_TEXT: "Logout"              # Expected text for logout functionality link
+RESET_APP_TEXT: "Reset App State"  # Expected text for state reset functionality link
+
+# MENU STATE INDICATORS
+# CSS selectors to determine if menu is open or closed based on accessibility attributes
+MENU_OPEN_STATE: "css=div.bm-menu-wrap[aria-hidden=\"false\"]"   # Selector for menu in open state
+MENU_CLOSED_STATE: "css=div.bm-menu-wrap[aria-hidden=\"true\"]"  # Selector for menu in closed state
