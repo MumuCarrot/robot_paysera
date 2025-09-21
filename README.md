@@ -426,19 +426,25 @@ pabot --processes 4 -d my_reports ./
 pabot --processes 2 -d my_reports -i shopping_cart_tests ./
 ```
 ### Allure Reporting
-Generate and serve detailed Allure reports with rich test analytics:
+Generate and serve detailed Allure reports with rich test analytics.
+**Note:** Allure automatically creates required directories (`allure-results`, `allure-report`), no manual creation needed.
 ```bash
-# Run tests with Allure listener
-python -m robot --listener allure_robotframework -d my_reports ./
+# ✅ RECOMMENDED: Clean results and run tests with Allure listener
+Remove-Item allure-results -Recurse -Force -ErrorAction SilentlyContinue
+python -m robot --listener "allure_robotframework:./allure-results" -d my_reports ./
 
 # Generate Allure HTML report from results
-allure generate ./output/allure -o allure-report/
+allure generate allure-results -o allure-report --clean
 
-# Serve Allure report locally
-allure serve allure-results/
+# Open Allure report in browser
+allure open allure-report
+
+# ⚠️ One-line command (clears previous results automatically)
+Remove-Item allure-results -Recurse -Force -ErrorAction SilentlyContinue && python -m robot --listener "allure_robotframework:./allure-results" -d my_reports ./ && allure generate allure-results -o allure-report --clean
 
 # Run failed tests and regenerate report
-python -m robot --listener allure_robotframework --rerunfailed my_reports/output.xml -d my_reports ./
+Remove-Item allure-results -Recurse -Force -ErrorAction SilentlyContinue
+python -m robot --listener "allure_robotframework:./allure-results" --rerunfailed my_reports/output.xml -d my_reports ./
 ```
 
 ## Available Test Tags
