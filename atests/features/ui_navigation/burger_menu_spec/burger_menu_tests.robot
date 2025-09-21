@@ -40,7 +40,7 @@ Setting the Test Environment for Burger Menu
     ...                3. Validate successful login and page load
     You display the Login Page           # Navigate to SauceDemo login page
     Perform the site authentication      # Login with default valid credentials 
-    Validate if the login was successful # Confirm user is authenticated and on products page
+    Validate if the login was successful    # Confirm user is authenticated and on products page
 
 *** Test Cases ***
 Scenario - Open and close burger menu with cross button

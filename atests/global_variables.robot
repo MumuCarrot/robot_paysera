@@ -36,7 +36,7 @@ ${YAML_FILE}             ${EXECDIR}/atests/support/resources/data/mass_of_tests.
 # BROWSER CONFIGURATION  
 # Settings for browser automation and web driver behavior
 ${BROWSER}               chromium                      # Browser engine to use (chromium/firefox/webkit)
-${HEADLESS_FLAG}         ${False}                     # Run browser in headless mode (True/False)
+${HEADLESS_FLAG}         ${false}                     # Run browser in headless mode (true/false)
 
 # TEST CONFIGURATION
 # General test execution settings and behavior control

@@ -38,7 +38,8 @@ You display the Login Page
     ...                This keyword is commonly used as a starting point for all test scenarios.
     ${DIC_EMPTY}=     Create Dictionary                    # Initialize empty dictionary for test data storage
     Set Browser Timeout    30s                            # Set default timeout for browser operations  
-    New Browser    ${BROWSER}    headless=${HEADLESS_FLAG} # Launch browser with configured settings (headless/visible)
+    ${BOOL_HEADLESS}=    Convert To Boolean    ${HEADLESS_FLAG}    # Convert headless flag to proper boolean
+    New Browser    ${BROWSER}    headless=${BOOL_HEADLESS}    # Launch browser with configured settings (headless/visible)
     New Context    acceptDownloads=true                   # Create browser context with file download permissions
     New Page    ${URL_SITE}                               # Navigate to SauceDemo application URL
     Wait For Load State    state=networkidle    timeout=20s  # Wait for page to fully load (no network activity)
@@ -57,7 +58,7 @@ Successful login testing
     ...                Usage: Call this keyword in test setup or as first step in authenticated test scenarios
     You display the Login Page         # Initialize browser and navigate to login page
     Perform the site authentication    # Login with valid default credentials 
-    Validate if the login was successful # Confirm authentication success and proper page loading
+    Validate if the login was successful    # Confirm authentication success and proper page loading
 
 Steps to Close Browser
     [Documentation]    Comprehensive browser cleanup and test result capture procedure.

@@ -86,5 +86,5 @@ Scenario - Shopping cart checkout remove all itens in cart
     Given Successful login testing                              # Authenticate user and navigate to inventory page
     When Select Inventory Item by Name   ${PRODUCTS_ADD}        # Add multiple products to cart
     And Select the option to view the items in your cart       # Navigate to shopping cart page  
-    And Remove item from cart            ${PRODUCTS_TO_REMOVE} # Remove all items from cart
+    And Remove item from cart            ${PRODUCTS_TO_REMOVE}    # Remove all items from cart
     Then Validate empty itens in Cart                          # Verify cart is empty and displays correct empty state
