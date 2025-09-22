@@ -1,6 +1,88 @@
 # Robot Framework Test Automation - Paysera Project
 Comprehensive test automation suite using Robot Framework with Playwright browser library, featuring Allure reporting and CI/CD integration.
 
+## API Server for Testing
+
+This project includes a simple Node.js + Express API server with SQLite database for testing purposes. The API provides CRUD operations for user management and is designed to be used with Robot Framework tests.
+
+### Quick Start - API Server
+
+#### Step 1: Install Node.js
+1. Download and install Node.js from [nodejs.org](https://nodejs.org/) (LTS version recommended)
+2. Verify installation:
+   ```bash
+   node --version
+   npm --version
+   ```
+
+#### Step 2: Install API Dependencies
+```bash
+npm install
+```
+
+#### Step 3: Start the API Server
+```bash
+# Development mode with auto-reload
+npm run dev
+
+# Or production mode
+npm start
+```
+
+The server will start at `http://localhost:3000`
+
+#### Step 4: Test API Endpoints
+You can test the API using curl, Postman, or the included Robot Framework tests:
+
+```bash
+# Health check
+curl http://localhost:3000/
+
+# Get all users
+curl http://localhost:3000/users
+
+# Create a new user
+curl -X POST http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe", "email": "john@example.com", "age": 30}'
+
+# Get user by ID
+curl http://localhost:3000/users/1
+
+# Update user
+curl -X PUT http://localhost:3000/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Smith", "email": "johnsmith@example.com", "age": 31}'
+
+# Delete user
+curl -X DELETE http://localhost:3000/users/1
+```
+
+### API Endpoints
+- `GET /` - API health check and endpoint list
+- `GET /users` - Get all users
+- `GET /users/:id` - Get user by ID
+- `POST /users` - Create new user
+- `PUT /users/:id` - Update user by ID
+- `DELETE /users/:id` - Delete user by ID
+
+### Running API Tests with Robot Framework
+```bash
+# Run API tests (make sure API server is running first)
+robot atests/features/api/api_tests.robot
+
+# Run specific test tags
+robot --include positive atests/features/api/api_tests.robot
+robot --include negative atests/features/api/api_tests.robot
+```
+
+### Database
+- SQLite database file: `database.sqlite`
+- Automatically created with sample data on first run
+- Simple user table with fields: id, name, email, age, created_at
+
+---
+
 ## Prerequisites & Installation Guide for Beginners
 
 ### Step 1: Install Python 3.11+

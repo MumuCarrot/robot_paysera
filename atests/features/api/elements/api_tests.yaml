@@ -1,0 +1,15 @@
+BASE_URL: "http://localhost:3000"
+
+VALID_USER:
+  name: "Test User"
+  email: "test@example.com"
+  age: 28
+
+INVALID_USER_NO_EMAIL:
+  name: "Test User"
+  age: 28
+
+INVALID_EMAIL:
+  name: "Test User" 
+  email: "invalid-email"
+  age: 28
