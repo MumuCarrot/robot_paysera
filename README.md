@@ -399,67 +399,88 @@ C:\Users\<user_name_here>\AppData\Roaming\Python\Python311\site-packages\Browser
 
 ## Team-Based Test Execution Strategy
 
-This test project is designed to support **two development teams** working collaboratively on different aspects of the SauceDemo application testing. Each team has a specific set of test responsibilities to ensure comprehensive coverage while avoiding conflicts and enabling parallel development.
+This test project is designed to support **multiple development teams** working collaboratively on different aspects of the SauceDemo application testing. Teams share common functionality while maintaining their specific feature responsibilities to ensure comprehensive coverage while avoiding conflicts and enabling parallel development.
 
 ### Team Structure and Responsibilities
 
-#### Team 1: Authentication & Shopping Flow
-**Focus Areas**: User authentication and shopping cart functionality
-- **Authentication Tests**: Login/logout functionality with various user scenarios
+#### Team Alpha: API Enhanced Testing & Burger Menu
+**Focus Areas**: Enhanced API testing and burger menu navigation functionality
+- **API Improved Tests**: Advanced API testing scenarios with enhanced error handling and bulk operations
+- **Burger Menu Tests**: Navigation menu functionality including responsive design and user interactions
+
+#### Team Beta: Shopping Cart & E-commerce Flow
+**Focus Areas**: Shopping cart functionality and complete e-commerce workflow
 - **Shopping Cart Tests**: Complete shopping cart workflow including add/remove items and checkout process
 
-#### Team 2: Authentication & UI Navigation  
-**Focus Areas**: User authentication and burger menu navigation
-- **Authentication Tests**: Login/logout functionality with various user scenarios  
-- **Burger Menu Tests**: Navigation menu functionality including responsive design and user interactions
+#### Common Features: Shared Authentication & API
+**Focus Areas**: Shared functionality across teams
+- **Authentication Tests**: Login/logout functionality with various user scenarios used by all teams
+- **API Tests**: Basic API testing functionality shared across teams
 
 ### Team-Specific Test Execution Commands
 
-#### Team 1 Commands (Auth + Shopping Cart)
+#### Team Alpha Commands (API Improved + Burger Menu)
 ```bash
-# Run all Team 1 tests (authentication + shopping cart)
-robot --loglevel DEBUG:INFO -d my_reports -i "login_tests OR shopping_cart_tests" ./
+# Run all Team Alpha tests (API improved + burger menu)
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/
 
-# Run authentication tests only
-robot --loglevel DEBUG:INFO -d my_reports -i login_tests ./
-
-# Run shopping cart tests only  
-robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_tests ./
-
-# Run specific shopping cart scenarios
-robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_ok ./
-robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_remove ./
-
-# Run Team 1 tests in parallel
-pabot --processes 2 -d my_reports -i "login_tests OR shopping_cart_tests" ./
-```
-
-#### Team 2 Commands (Auth + Burger Menu)
-```bash
-# Run all Team 2 tests (authentication + burger menu)
-robot --loglevel DEBUG:INFO -d my_reports -i "login_tests OR burger_menu_tests" ./
-
-# Run authentication tests only
-robot --loglevel DEBUG:INFO -d my_reports -i login_tests ./
+# Run API improved tests only
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/api_improved/
 
 # Run burger menu tests only
-robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_tests ./
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/burger_menu_spec/
 
 # Run specific burger menu scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_open_close ./
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_navigation ./
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_overlay ./
 
-# Run Team 2 tests in parallel
-pabot --processes 2 -d my_reports -i "login_tests OR burger_menu_tests" ./
+# Run Team Alpha tests in parallel
+pabot --processes 2 -d my_reports atests/features/team_alpha/
+```
+
+#### Team Beta Commands (Shopping Cart)
+```bash
+# Run all Team Beta tests (shopping cart)
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/
+
+# Run shopping cart tests only  
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/shopping_cart_spec/
+
+# Run specific shopping cart scenarios
+robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_ok ./
+robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_remove ./
+
+# Run Team Beta tests in parallel
+pabot --processes 2 -d my_reports atests/features/team_beta/
+```
+
+#### Common Features Commands (Authentication + API)
+```bash
+# Run all common features tests (authentication + API)
+robot --loglevel DEBUG:INFO -d my_reports atests/features/common/
+
+# Run authentication tests only
+robot --loglevel DEBUG:INFO -d my_reports atests/features/common/auth/
+
+# Run API tests only
+robot --loglevel DEBUG:INFO -d my_reports atests/features/common/api/
+
+# Run specific login scenarios
+robot --loglevel DEBUG:INFO -d my_reports -i login_ok ./
+robot --loglevel DEBUG:INFO -d my_reports -i login_negative ./
+
+# Run common features in parallel
+pabot --processes 2 -d my_reports atests/features/common/
 ```
 
 ### Cross-Team Collaboration Guidelines
 
-- **Shared Authentication Tests**: Both teams work with the same authentication test suite, ensuring consistent login/logout functionality across all features
-- **Independent Development**: Teams can develop and test their specific UI features independently
-- **Parallel Execution**: Teams can run their test suites simultaneously without conflicts
-- **Shared Reporting**: Both teams contribute to the same reporting infrastructure and CI/CD pipeline
+- **Common Features**: Both teams use shared authentication and API test suites from the `common/` folder, ensuring consistent functionality across all features
+- **Team-Specific Features**: Team Alpha focuses on enhanced API testing and burger menu, Team Beta on shopping cart functionality
+- **Independent Development**: Teams can develop and test their specific features independently under their respective folders
+- **Parallel Execution**: Teams can run their test suites simultaneously without conflicts using team-specific paths
+- **Shared Reporting**: All teams contribute to the same reporting infrastructure and CI/CD pipeline
 
 ### Full Test Suite Execution
 ```bash
@@ -589,21 +610,31 @@ Project Structure Conventions
 ```
 ├── atests/                                    # Main test automation folder (root code)
 │   ├── features/                             # Feature-based test organization
-│   │   ├── elements/                         # Shared page elements (locators) across features
-│   │   │   └── burger_menu_page.yaml        # Common UI elements for burger menu
-│   │   ├── keywords/                         # Shared keywords library across features
-│   │   │   └── burger_menu_keywords.robot   # Reusable actions for burger menu
-│   │   ├── auth/                            # Authentication feature tests
-│   │   │   └── login_spec/                  # Login specification tests
-│   │   │       ├── elements/                # Login-specific page elements
-│   │   │       │   └── login_page.yaml     # Login page locators
-│   │   │       ├── keywords/                # Login-specific keywords
-│   │   │       │   └── login_keywords.robot # Login action keywords
-│   │   │       └── login_tests.robot       # Login test scenarios
-│   │   └── ui_navigation/                   # UI Navigation feature tests
-│   │       ├── team_burger_menu_spec/       # Burger menu specification tests
-│   │       │   └── burger_menu_tests.robot # Burger menu test scenarios
-│   │       └── team_shopping_cart_spec/     # Shopping cart specification tests
+│   │   ├── common/                          # Common/shared features across teams
+│   │   │   ├── api/                         # API testing features
+│   │   │   │   ├── elements/                # API-specific elements
+│   │   │   │   │   └── api_tests.yaml      # API test configuration
+│   │   │   │   ├── keywords/                # API-specific keywords  
+│   │   │   │   │   └── api_tests_keywords.robot # API action keywords
+│   │   │   │   └── api_tests.robot         # API test scenarios
+│   │   │   └── auth/                        # Authentication feature tests
+│   │   │       └── login_spec/              # Login specification tests
+│   │   │           ├── elements/            # Login-specific page elements
+│   │   │           │   └── login_page.yaml # Login page locators
+│   │   │           ├── keywords/            # Login-specific keywords
+│   │   │           │   └── login_keywords.robot # Login action keywords
+│   │   │           └── login_tests.robot   # Login test scenarios
+│   │   ├── team_alpha/                      # Team Alpha specific features
+│   │   │   ├── api_improved/                # Improved API testing
+│   │   │   │   └── api_tests_improved.robot # Enhanced API test scenarios
+│   │   │   └── burger_menu_spec/            # Burger menu specification tests
+│   │   │       ├── elements/                # Burger menu-specific page elements  
+│   │   │       │   └── burger_menu_page.yaml # Burger menu locators
+│   │   │       ├── keywords/                # Burger menu-specific keywords
+│   │   │       │   └── burger_menu_keywords.robot # Burger menu action keywords
+│   │   │       └── burger_menu_tests.robot # Burger menu test scenarios
+│   │   └── team_beta/                       # Team Beta specific features
+│   │       └── shopping_cart_spec/          # Shopping cart specification tests
 │   │           ├── elements/                # Cart-specific page elements
 │   │           │   └── shopping_cart_page.yaml # Shopping cart locators
 │   │           ├── keywords/                # Cart-specific keywords

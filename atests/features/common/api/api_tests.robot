@@ -83,7 +83,7 @@ Create User - Invalid Email Format (Negative Test)
 Get User By ID - Invalid ID (Negative Test)
     [Documentation]    Test getting a user with non-existent ID
     [Tags]    get    users    negative
-    ${response}=    GET    ${BASE_URL}/users/99999    expected_status=404
+    ${response}=    GET    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    expected_status=404
     Should Be Equal As Numbers    ${response.status_code}    404
     ${json_response}=    Set Variable    ${response.json()}
     Should Contain    ${json_response['error']}    User not found
@@ -100,7 +100,7 @@ Update User - Non-existent ID (Negative Test)
     [Documentation]    Test updating a non-existent user
     [Tags]    put    users    negative
     &{updated_user}=    Create Dictionary    name=Non-existent User    email=nonexistent@example.com    age=${25}
-    ${response}=    PUT    ${BASE_URL}/users/99999    json=${updated_user}    expected_status=404
+    ${response}=    PUT    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    json=${updated_user}    expected_status=404
     Should Be Equal As Numbers    ${response.status_code}    404
     ${json_response}=    Set Variable    ${response.json()}
     Should Contain    ${json_response['error']}    User not found
@@ -117,7 +117,7 @@ Delete User - Valid ID
 Delete User - Non-existent ID (Negative Test)
     [Documentation]    Test deleting a non-existent user
     [Tags]    delete    users    negative
-    ${response}=    DELETE    ${BASE_URL}/users/99999    expected_status=404
+    ${response}=    DELETE    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    expected_status=404
     Should Be Equal As Numbers    ${response.status_code}    404
     ${json_response}=    Set Variable    ${response.json()}
     Should Contain    ${json_response['error']}    User not found

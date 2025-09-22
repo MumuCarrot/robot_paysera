@@ -1,5 +1,7 @@
 BASE_URL: "http://localhost:3000"
 
+NON_EXISTENT_USER_ID: 99999
+
 VALID_USER:
   name: "Test User"
   email: "test@example.com"

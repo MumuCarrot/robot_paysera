@@ -2,7 +2,7 @@
 Library    RequestsLibrary
 Library    Collections
 
-Resource    keywords/api_tests_keywords.robot
+Resource    ../../common/api/keywords/api_tests_keywords.robot
 
 Suite Setup    Create Session    api    http://localhost:3000
 Suite Teardown    Delete All Sessions
@@ -53,7 +53,7 @@ User Validation Tests - Improved
     Validate Error Response    ${invalid_email_response}    400    Invalid email format
     
     # Test non-existent user retrieval
-    ${not_found_response}=    Get User By ID    99999    expected_status=404
+    ${not_found_response}=    Get User By ID    ${NON_EXISTENT_USER_ID}    expected_status=404
     Validate Error Response    ${not_found_response}    404    User not found
 
 Bulk User Operations
@@ -94,9 +94,9 @@ Error Handling Edge Cases
     
     # Test update non-existent user
     &{update_data}=    Create Dictionary    name=Ghost User    email=ghost@test.com    age=${99}
-    ${update_ghost_response}=    Update User By ID    99999    ${update_data}    expected_status=404
+    ${update_ghost_response}=    Update User By ID    ${NON_EXISTENT_USER_ID}    ${update_data}    expected_status=404
     Validate Error Response    ${update_ghost_response}    404    User not found
     
     # Test delete non-existent user
-    ${delete_ghost_response}=    Delete User By ID    99999    expected_status=404
+    ${delete_ghost_response}=    Delete User By ID    ${NON_EXISTENT_USER_ID}    expected_status=404
     Validate Error Response    ${delete_ghost_response}    404    User not found

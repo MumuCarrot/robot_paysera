@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // Database setup
-const dbPath = path.join(__dirname, '../database.sqlite');
+const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 // Initialize database

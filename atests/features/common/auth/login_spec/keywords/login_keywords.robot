@@ -1,6 +1,6 @@
 *** Settings ***
 # Import base test functionality and page element definitions
-Resource     ../../../../support/baseTests.robot    # Base test setup and common keywords
+Resource     ../../../../../support/baseTests.robot    # Base test setup and common keywords
 Variables    ../elements/login_page.yaml            # Login page element locators and test data
 
 # =============================================================================
