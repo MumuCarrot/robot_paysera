@@ -29,12 +29,6 @@ Force Tags    shopping_cart_tests                      # Tag all tests in this s
 # - Tests operate on the main inventory page with available products
 # =============================================================================
 
-*** Variables ***
-# Test data for cart operations - these products are used across multiple test scenarios
-${PRODUCTS_ADD}=          Sauce Labs Bolt T-Shirt, Sauce Labs Fleece Jacket    # Products to add to cart (comma-separated)
-${PRODUCT_TO_REMOVE}=     Sauce Labs Bolt T-Shirt                              # Single product to remove in removal tests
-${PRODUCTS_TO_REMOVE}=    Sauce Labs Bolt T-Shirt, Sauce Labs Fleece Jacket    # All products to remove (complete cart clearing)
-
 *** Test Cases ***
 Scenario - Shopping cart checkout itens in cart
     [Documentation]    Tests the complete workflow of adding products to cart and validating cart contents.

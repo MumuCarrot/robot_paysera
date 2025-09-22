@@ -16,11 +16,11 @@
 
 # USER INTERFACE ELEMENTS
 # Basic page elements for user interaction (inherited from login functionality)
-USER_INPUT: "css=form #user-name"                        # Username input field (shared with login tests)
+USER_INPUT: "id=user-name"                        # Username input field (shared with login tests)
 
 # PRODUCT INTERACTION ELEMENTS
 # Elements for selecting and adding products to cart
-ADD_CART_BUTTON: "css=button[id*=\"add-to-cart\"]"       # Generic add to cart button selector (matches any product)
+ADD_CART_BUTTON: "css=button[id*='add-to-cart']"       # Generic add to cart button selector (matches any product)
 BACK_PRODUCTS_BUTTON: "id=back-to-products"              # Button to return from product details to inventory page
 PRICE_DIV: "css=div.inventory_details_price"             # Product price element on detail pages
 INVENTORY_LOCATOR: "css=#inventory_container:first-of-type"  # Main inventory page container
@@ -32,9 +32,13 @@ CART_BUTTON: "id=shopping_cart_container"                # Shopping cart icon/bu
 # CART MANAGEMENT ELEMENTS
 # Elements for managing items within the shopping cart
 DELETE_BUTTON: "css=#cart_contents_container button"     # Remove button for cart items (generic selector)
-QUATITY_ITEM_TEXT: "css=#cart_contents_container div.cart_quantity:has-text(\"1\")"  # Quantity indicator for cart items
+QUATITY_ITEM_TEXT: "css=#cart_contents_container div.cart_quantity:has-text('1')"  # Quantity indicator for cart items
 
 # CART ACTION ELEMENTS
 # Primary action buttons available in the shopping cart
-CHECKOUT_BUTTON: "css=button#checkout:has-text(\"Checkout\")"                        # Proceed to checkout button
-CONTINUE_SHOPPING_BUTTON: "css=button#continue-shopping:has-text(\"Continue Shopping\")"  # Return to inventory button
+CHECKOUT_BUTTON: "css=button#checkout:has-text('Checkout')"                        # Proceed to checkout button
+CONTINUE_SHOPPING_BUTTON: "css=button#continue-shopping:has-text('Continue Shopping')"  # Return to inventory button
+
+PRODUCTS_ADD: "Sauce Labs Bolt T-Shirt, Sauce Labs Fleece Jacket"           # Products to add to cart (comma-separated)
+PRODUCT_TO_REMOVE: "Sauce Labs Bolt T-Shirt"                                # Single product to remove in removal tests
+PRODUCTS_TO_REMOVE: "Sauce Labs Bolt T-Shirt, Sauce Labs Fleece Jacket"     # All products to remove (complete cart clearing)

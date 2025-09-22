@@ -1,18 +1,6 @@
 # Robot Framework Test Automation - Paysera Project
 Comprehensive test automation suite using Robot Framework with Playwright browser library, featuring Allure reporting and CI/CD integration.
 
-## Application Under Test
-**Target Application**: SauceDemo E-commerce Platform  
-**URL**: https://www.saucedemo.com/  
-**Description**: Demo e-commerce website for testing automation frameworks
-
-### Test Coverage Areas:
-- **Authentication**: Login/logout functionality with various user types
-- **Product Navigation**: Inventory browsing, filtering, and selection
-- **Shopping Cart**: Add/remove items, cart management
-- **User Interface**: Burger menu navigation, responsive design elements
-- **End-to-End Flows**: Complete purchase workflows
-
 ## Prerequisites & Installation Guide for Beginners
 
 ### Step 1: Install Python 3.11+
@@ -109,8 +97,6 @@ pip --version       # or pip3 --version on macOS/Linux
 
 ```bash
 # Navigate to your project directory
-cd path/to/robot_paysera
-
 # Create virtual environment
 python -m venv .venv
 # or on macOS/Linux: python3 -m venv .venv
@@ -152,6 +138,34 @@ robot --version
 #### Install Allure CLI (Required for Allure Reports)
 **Allure command line tool is needed to generate and serve HTML reports:**
 
+**⚠️ IMPORTANT: JDK 8+ is required for Allure server to work properly.**
+
+#### Step 1: Install Java Development Kit (JDK)
+**Allure server requires minimum JDK 8 or higher:**
+
+```bash
+# Check if Java is already installed
+java -version
+# Should output: openjdk version "X.X.X" or similar
+
+# If Java is not installed, download from:
+# https://adoptium.net/ (recommended)
+# or https://www.oracle.com/java/technologies/downloads/
+```
+
+**Installation by platform:**
+- **Windows**: Download and install JDK from [Adoptium](https://adoptium.net/)
+- **macOS**: `brew install openjdk` or download from Adoptium
+- **Linux (Ubuntu/Debian)**: `sudo apt install openjdk-11-jdk`
+
+**Verify Java installation:**
+```bash
+java -version
+javac -version
+# Both commands should work and show version 8+
+```
+
+#### Step 2: Install Allure CLI
 ```bash
 # Install Allure CLI globally via npm
 npm install -g allure-commandline
@@ -209,6 +223,12 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - **Permission denied**: Use `sudo npm install -g allure-commandline` on macOS/Linux
 - **Version conflicts**: Uninstall and reinstall: `npm uninstall -g allure-commandline && npm install -g allure-commandline`
 
+#### JDK/Java Issues (Required for Allure Server):
+- **Java not found**: Install JDK 8+ from [Adoptium](https://adoptium.net/) or use package manager
+- **Allure server fails to start**: Verify Java installation with `java -version` (should show version 8+)
+- **"JAVA_HOME not set"**: Set JAVA_HOME environment variable to your JDK installation path
+- **PATH issues**: Ensure Java bin directory is in your system PATH
+
 #### Robot Framework CLI Issues:
 - **'robot' is not recognized**: 
   - Activate virtual environment: `source .venv/bin/activate` (macOS/Linux) or `.venv\Scripts\activate` (Windows)
@@ -230,9 +250,10 @@ https://github.com/reinaldorossetti/robot_atdd_playwright_saucedemo/blob/main/.g
 If you're experienced with Python development, here's the minimal setup:
 
 ```bash
-# 1. Ensure Python 3.11+ and Node.js are installed and in PATH
+# 1. Ensure Python 3.11+, Node.js, and JDK 8+ are installed and in PATH
 python --version  # Should be 3.11+
 node --version    # Any recent version
+java -version     # Should be 8+ (required for Allure server)
 
 # 2. Create and activate virtual environment (optional but recommended)
 python -m venv .venv
@@ -498,9 +519,9 @@ Project Structure Conventions
 │   │   │       │   └── login_keywords.robot # Login action keywords
 │   │   │       └── login_tests.robot       # Login test scenarios
 │   │   └── ui_navigation/                   # UI Navigation feature tests
-│   │       ├── burger_menu_spec/            # Burger menu specification tests
+│   │       ├── team_burger_menu_spec/       # Burger menu specification tests
 │   │       │   └── burger_menu_tests.robot # Burger menu test scenarios
-│   │       └── shopping_cart_spec/          # Shopping cart specification tests
+│   │       └── team_shopping_cart_spec/     # Shopping cart specification tests
 │   │           ├── elements/                # Cart-specific page elements
 │   │           │   └── shopping_cart_page.yaml # Shopping cart locators
 │   │           ├── keywords/                # Cart-specific keywords
@@ -584,6 +605,71 @@ pyyaml>=6.0.2                      # YAML configuration files
 - **Browser Support**: Chromium, Firefox, WebKit via Playwright
 - **CI/CD Integration**: GitHub Actions workflows included
 - **IDE Support**: VS Code extensions recommended
+
+## IDE Setup and Extensions
+
+### Robot Framework Language Server (Recommended)
+For enhanced development experience with syntax highlighting, code completion, and debugging support, install the **Robot Framework Language Server** extension:
+
+#### Visual Studio Code:
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search for "Robot Framework Language Server"
+4. Install the extension by **Robocorp**
+5. Restart VS Code
+
+#### Extension Features:
+- **Syntax Highlighting**: Proper color coding for Robot Framework keywords, variables, and test structures
+- **Auto-completion**: IntelliSense for keywords, variables, and imports
+- **Go to Definition**: Navigate to keyword definitions across files
+- **Error Detection**: Real-time syntax error highlighting
+- **Code Formatting**: Automatic code formatting and indentation
+- **Debugging Support**: Step-through debugging capabilities
+- **Test Discovery**: Visual test tree explorer
+
+#### Alternative IDEs:
+- **PyCharm/IntelliJ**: Install "IntelliBot @SeleniumLibrary Patched" plugin
+- **Sublime Text**: Install "Robot Framework" package
+- **Atom**: Install "language-robot-framework" package
+
+#### Configuration (Optional):
+
+##### VS Code Configuration:
+Create `.vscode/settings.json` in your project root for optimal experience:
+```json
+{
+    "robot.language-server.python": ".venv/Scripts/python.exe",
+    "robot.libraries.libdoc.needsArgs": [
+        "Browser"
+    ],
+    "robot.variables": {
+        "BROWSER": "chromium"
+    }
+}
+```
+
+##### PyCharm Configuration:
+PyCharm doesn't use `settings.json`. Instead, configure through the IDE:
+
+1. **File → Settings** (or PyCharm → Preferences on macOS)
+2. **Project Settings → Project Interpreter**:
+   - Set interpreter to your virtual environment: `.venv/Scripts/python.exe` (Windows) or `.venv/bin/python` (macOS/Linux)
+3. **Languages & Frameworks → Robot Framework**:
+   - Enable Robot Framework support
+   - Set Robot Framework path: usually auto-detected
+   - Configure library paths if needed
+4. **File Types**: Ensure `.robot` files are associated with Robot Framework file type
+
+**PyCharm Project Configuration Files** (automatically created):
+```
+├── .idea/
+│   ├── misc.xml           # Python interpreter settings
+│   ├── modules.xml        # Project modules configuration  
+│   ├── workspace.xml      # IDE workspace settings
+│   └── [project-name].iml # Module configuration
+```
+
+**Note:** PyCharm stores its configuration in the `.idea/` folder. The Language Server significantly improves productivity and reduces syntax errors during test development.
 
 References:      
 robotframework:  

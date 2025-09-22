@@ -23,6 +23,19 @@ Variables    ../elements/burger_menu_page.yaml      # Burger menu element locato
 # =============================================================================
 
 *** Keywords ***
+Setting the Test Environment for Burger Menu
+    [Documentation]    Prepares the test environment by logging in to the application.
+    ...                This ensures that each burger menu test starts from an authenticated state
+    ...                on the main products page where the burger menu is available.
+    ...
+    ...                Setup flow:
+    ...                1. Navigate to login page
+    ...                2. Perform authentication with valid credentials
+    ...                3. Validate successful login and page load
+    You display the Login Page           # Navigate to SauceDemo login page
+    Perform the site authentication      # Login with default valid credentials 
+    Validate if the login was successful    # Confirm user is authenticated and on products page
+
 Open Burger Menu
     [Documentation]    Opens the burger menu by clicking the hamburger button and waits for menu to become visible.
     ...                This keyword handles the complete menu opening sequence including waiting for animations
@@ -52,26 +65,6 @@ Close Burger Menu
     Click    ${BURGER_MENU_CROSS_BUTTON}                                                    # Click to trigger menu closing
     Wait For All Promises                                                                   # Wait for animations/async operations
     Wait For Elements State    ${BURGER_MENU_CONTAINER}    state=hidden    timeout=10s     # Confirm menu is fully hidden
-
-Close Burger Menu By Overlay
-    [Documentation]    Closes the burger menu by clicking on the overlay (background area outside the menu).
-    ...                This provides an alternative and intuitive way to dismiss the menu, similar to
-    ...                modal dialog behavior. Includes fallback to cross button if overlay is not available.
-    ...
-    ...                Expected behavior:
-    ...                - Overlay area should be clickable when menu is open
-    ...                - Clicking overlay dismisses menu with smooth animation
-    ...                - If overlay not found, fallback to cross button method
-    ...                - Menu becomes completely hidden after interaction
-    ${overlay_exists}=    Run Keyword And Return Status    Wait For Elements State    ${BURGER_MENU_OVERLAY}    state=visible    timeout=2s  # Check if overlay is available
-    IF    not ${overlay_exists}                                           # Handle case where overlay is not present
-        Log    Overlay not found, clicking cross button instead          # Log fallback action for debugging
-        Click    ${BURGER_MENU_CROSS_BUTTON}                             # Use cross button as fallback
-        RETURN                                                            # Exit after fallback action
-    END
-    Click    ${BURGER_MENU_OVERLAY}                                       # Click overlay area to close menu
-    Wait For All Promises                                                 # Wait for animations/async operations
-    Wait For Elements State    ${BURGER_MENU_CONTAINER}    state=hidden    timeout=10s  # Confirm menu is fully hidden
 
 Verify Burger Menu Is Open
     [Documentation]    Comprehensive verification that the burger menu is in open state with all elements visible.
@@ -196,3 +189,77 @@ Navigate Through All Menu Items
     Click Menu Item    About                            # Navigate to external about page
     Wait For Load State    state=networkidle    timeout=10s  # Wait for external page to load  
     Go Back                                             # Return to previous page to maintain test context
+
+# =============================================================================
+# Test Case Step Keywords
+# 
+# These keywords represent individual test steps that are composed to create
+# complete test scenarios. They provide a business-readable interface that
+# hides technical implementation details and maps to user actions and expectations.
+# =============================================================================
+
+*** Keywords ***
+Burger menu should be initially closed
+    [Documentation]    Verifies that the burger menu is in its initial closed state.
+    ...                Ensures the hamburger button is visible but the menu itself is hidden.
+    Wait For Elements State    ${BURGER_MENU_BUTTON}    state=visible    timeout=10s  # Ensure burger button is available
+    Verify Burger Menu Is Closed                                                     # Verify menu is currently hidden
+
+User opens the burger menu
+    [Documentation]    Simulates user action of opening the burger menu by clicking the hamburger button.
+    Open Burger Menu                                                                 # Click hamburger button to open menu
+
+User opens the burger menu again
+    [Documentation]    Simulates user reopening the burger menu after it was previously closed.
+    ...                This is used in multi-step scenarios to test menu functionality after state changes.
+    Open Burger Menu                                                                 # Click hamburger button to open menu again
+
+Burger menu should be visible with all items
+    [Documentation]    Verifies that the burger menu is open and all menu items are properly displayed.
+    ...                This validation confirms both the menu visibility and content completeness.
+    Verify Burger Menu Is Open                                                       # Verify menu container is visible
+    Verify All Menu Items Are Visible                                               # Verify all menu options are displayed
+
+User closes burger menu with cross button
+    [Documentation]    Simulates user closing the burger menu using the cross (X) button.
+    ...                This tests the primary method for dismissing the menu.
+    Close Burger Menu                                                                # Click cross button to close menu                                                 # Click overlay area to close menu
+
+Burger menu should be closed
+    [Documentation]    Verifies that the burger menu is in closed state and hidden from view.
+    Verify Burger Menu Is Closed                                                     # Verify menu is hidden
+
+User clicks on "${item_name}" menu item
+    [Documentation]    Simulates user clicking on a specific menu item within the burger menu.
+    ...                This keyword supports parameterized menu item selection for flexible navigation testing.
+    ...
+    ...                Args:
+    ...                    ${item_name}: The name of the menu item to click (e.g., "All Items", "About")
+    Click Menu Item    ${item_name}                                                  # Click specified menu item
+
+User should be on inventory page
+    [Documentation]    Verifies that the user has been successfully navigated to the inventory/products page.
+    ...                Validates both page element presence and URL content.
+    Wait For Elements State    ${INVENTORY_LOCATOR}    state=visible    timeout=10s  # Wait for inventory container to load
+    ${current_url}=    Get Url                                                       # Get current page URL
+    Should Contain    ${current_url}    inventory.html                              # Verify URL contains inventory page path
+
+User should be redirected to about page
+    [Documentation]    Verifies that the user has been redirected to the external SauceLabs about page.
+    ...                Validates successful external navigation and URL redirection.
+    Wait For Load State    state=networkidle    timeout=15s                         # Wait for external page to fully load
+    ${current_url}=    Get Url                                                       # Get current page URL
+    Should Contain    ${current_url}    saucelabs.com                               # Verify URL contains SauceLabs domain
+    
+All menu items should be visible
+    [Documentation]    Verifies that all expected menu items are visible when the menu is open.
+    ...                This ensures no menu options are hidden or missing from the UI.
+    Verify All Menu Items Are Visible                                               # Check visibility of all menu items
+
+Menu items should have correct text
+    [Documentation]    Verifies that all menu items display the expected text content.
+    ...                This validates that menu labels are correct and properly localized.
+    Verify Menu Item Text    ${ALL_ITEMS_TEXT}                                      # Verify "All Items" text
+    Verify Menu Item Text    ${ABOUT_TEXT}                                          # Verify "About" text  
+    Verify Menu Item Text    ${LOGOUT_TEXT}                                         # Verify "Logout" text
+    Verify Menu Item Text    ${RESET_APP_TEXT}                                      # Verify "Reset App State" text

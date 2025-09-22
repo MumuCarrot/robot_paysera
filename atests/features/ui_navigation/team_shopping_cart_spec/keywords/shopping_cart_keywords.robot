@@ -143,7 +143,7 @@ Validate in Cart
     ${elements_delete}=             Get Elements    ${DELETE_BUTTON}:has-text(\"Remove\")    # Count all remove buttons in cart
     ${elements_cart_quantity}=      Get Elements    ${QUATITY_ITEM_TEXT}                     # Count all quantity indicators
     ${delete_count}=                Get Length    ${elements_delete}                         # Get number of remove buttons
-    ${cart_quantity_count}=         Get Length    ${elements_delete}                        # Get number of quantity elements
+    ${cart_quantity_count}=         Get Length    ${elements_cart_quantity}                 # Get number of quantity elements
     ${list_count}=                  Get Length    ${list_names}                             # Get expected number of items from test data
     Should Be Equal       ${list_count}    ${cart_quantity_count}                          # Verify item count matches expectations
     Should Be Equal       ${list_count}    ${delete_count}                                 # Verify each item has a remove button

@@ -15,20 +15,19 @@
 
 # MENU CONTROL ELEMENTS
 # Primary buttons for menu interaction
-BURGER_MENU_BUTTON: "css=button#react-burger-menu-btn"        # Hamburger button to open the menu
-BURGER_MENU_CROSS_BUTTON: "css=button#react-burger-cross-btn" # Cross (X) button to close the menu
+BURGER_MENU_BUTTON: "xpath=//*[@id='react-burger-menu-btn']"        # Hamburger button to open the menu
+BURGER_MENU_CROSS_BUTTON: "xpath=//*[@id='react-burger-cross-btn']" # Cross (X) button to close the menu
 
 # MENU STRUCTURE ELEMENTS  
 # Container and layout elements for the burger menu
-BURGER_MENU_CONTAINER: "css=div.bm-menu"    # Main menu container that holds menu content
-BURGER_MENU_OVERLAY: "css=div.bm-overlay"   # Background overlay for closing menu by clicking outside
+BURGER_MENU_CONTAINER: "xpath=//*[@id='menu_button_container']/div/div[2]/div[1]"    # Main menu container that holds menu content
 
 # MENU NAVIGATION LINKS
 # Individual menu items that provide navigation to different pages
-ALL_ITEMS_LINK: "css=#inventory_sidebar_link"    # Link to return to main inventory/products page
-ABOUT_LINK: "css=#about_sidebar_link"            # Link to external SauceLabs company information page
-LOGOUT_LINK: "css=#logout_sidebar_link"          # Link to logout and return to login page
-RESET_APP_LINK: "css=#reset_sidebar_link"        # Link to reset application state (clear cart, filters, etc.)
+ALL_ITEMS_LINK: "xpath=//*[@id='inventory_sidebar_link']"    # Link to return to main inventory/products page
+ABOUT_LINK: "xpath=//*[@id='about_sidebar_link']"            # Link to external SauceLabs company information page
+LOGOUT_LINK: "xpath=//*[@id='logout_sidebar_link']"          # Link to logout and return to login page
+RESET_APP_LINK: "xpath=//*[@id='reset_sidebar_link']"        # Link to reset application state (clear cart, filters, etc.)
 
 # MENU TEXT CONSTANTS
 # Expected text content for menu items (used for validation)
@@ -39,5 +38,5 @@ RESET_APP_TEXT: "Reset App State"  # Expected text for state reset functionality
 
 # MENU STATE INDICATORS
 # CSS selectors to determine if menu is open or closed based on accessibility attributes
-MENU_OPEN_STATE: "css=div.bm-menu-wrap[aria-hidden=\"false\"]"   # Selector for menu in open state
-MENU_CLOSED_STATE: "css=div.bm-menu-wrap[aria-hidden=\"true\"]"  # Selector for menu in closed state
+MENU_OPEN_STATE: "xpath=//*[@id='menu_button_container']/div/div[2][@hidden='false' or @aria-hidden='false']"   # Selector for menu in open state
+MENU_CLOSED_STATE: "xpath=//*[@id='menu_button_container']/div/div[2][@hidden='true' or @aria-hidden='true']"  # Selector for menu in closed state
