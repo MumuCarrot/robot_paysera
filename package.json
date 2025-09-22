@@ -2,10 +2,10 @@
   "name": "robot-paysera-api",
   "version": "1.0.0",
   "description": "Simple API server for Robot Framework testing",
-  "main": "api/api.js",
+  "main": "demo_resourses/api.js",
   "scripts": {
-    "start": "node api/api.js",
-    "dev": "nodemon api/api.js"
+    "start": "node demo_resourses/api.js",
+    "dev": "nodemon demo_resourses/api.js"
   },
   "dependencies": {
     "express": "^4.18.2",

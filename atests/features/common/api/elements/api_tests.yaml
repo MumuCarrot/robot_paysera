@@ -1,17 +1,116 @@
-BASE_URL: "http://localhost:3000"
+# =============================================================================
+# API Test Configuration and Test Data
+#
+# This YAML file contains configuration settings and test data for API testing
+# scenarios. It defines the base URL for API requests and various user data
+# objects used in positive and negative test cases.
+#
+# Data Categories:
+# - Configuration: Base URLs and API endpoints
+# - Valid Test Data: Complete user objects with nested structures
+# - Invalid Test Data: Malformed data for negative testing scenarios
+# - Test Constants: Fixed values like non-existent IDs
+# =============================================================================
 
-NON_EXISTENT_USER_ID: 99999
+# API Configuration Settings
+BASE_URL: "http://localhost:3000"    # Base URL for the API server under test
 
-VALID_USER:
+# Test Constants
+NON_EXISTENT_USER_ID: 99999    # User ID that doesn't exist in database for negative testing
+
+# Valid Test Data Objects
+VALID_USER:    # Complete user object with all fields including nested address and profile
   name: "Test User"
   email: "test@example.com"
   age: 28
+  address:
+    street: "123 Main Street"
+    city: "New York"
+    state: "NY"
+    zip_code: "10001"
+    country: "USA"
+  profile:
+    occupation: "Software Developer"
+    company: "Tech Corp"
+    phone: "+1-555-123-4567"
+    preferences:
+      newsletter: true
+      notifications: false
+      theme: "dark"
 
-INVALID_USER_NO_EMAIL:
+# Invalid Test Data Objects for Negative Testing
+INVALID_USER_NO_EMAIL:    # User object missing required email field
   name: "Test User"
   age: 28
+  address:
+    street: "456 Oak Avenue"
+    city: "Los Angeles"
+    state: "CA"
+    zip_code: "90210"
+    country: "USA"
+  profile:
+    occupation: "Designer"
+    company: "Creative Studios"
+    phone: "+1-555-987-6543"
+    preferences:
+      newsletter: false
+      notifications: true
+      theme: "light"
 
-INVALID_EMAIL:
+INVALID_EMAIL:    # User object with malformed email address
   name: "Test User" 
   email: "invalid-email"
   age: 28
+  address:
+    street: "789 Pine Street"
+    city: "Chicago"
+    state: "IL"
+    zip_code: "60601"
+    country: "USA"
+  profile:
+    occupation: "Manager"
+    company: "Business Inc"
+    phone: "+1-555-456-7890"
+    preferences:
+      newsletter: true
+      notifications: true
+      theme: "auto"
+
+# Test Data for Nested Field Validation Scenarios
+VALID_USER_MINIMAL_NESTED:    # User object with minimal required nested fields only
+  name: "Minimal User"
+  email: "minimal@example.com"
+  age: 25
+  address:
+    street: "Simple Street"
+    city: "Simple City"
+  profile:
+    occupation: "Student"
+
+USER_WITH_INVALID_NESTED_DATA:    # User object with invalid values in nested fields for error testing
+  name: "Invalid Nested User"
+  email: "invalid.nested@example.com"
+  age: 30
+  address:
+    street: ""  # Empty street should be invalid
+    city: "Test City"
+    state: "TS"
+    zip_code: "invalid-zip"  # Invalid zip format
+    country: "USA"
+  profile:
+    occupation: ""  # Empty occupation
+    company: "Test Company"
+    phone: "invalid-phone-format"  # Invalid phone format
+    preferences:
+      newsletter: "yes"  # Should be boolean
+      notifications: "no"  # Should be boolean
+      theme: "invalid-theme"  # Invalid theme option
+
+USER_WITH_MISSING_NESTED_REQUIRED:    # User object missing required nested fields for validation testing
+  name: "Missing Required User"
+  email: "missing@example.com"
+  age: 35
+  # Missing address object completely
+  profile:
+    company: "Some Company"
+    # Missing required occupation field

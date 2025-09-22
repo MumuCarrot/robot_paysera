@@ -18,11 +18,16 @@ const db = new sqlite3.Database(dbPath);
 
 // Initialize database
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
+    // Drop existing table if it exists to ensure correct schema
+    db.run(`DROP TABLE IF EXISTS users`);
+    
+    db.run(`CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         age INTEGER,
+        address TEXT,
+        profile TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
@@ -30,16 +35,79 @@ db.serialize(() => {
     db.get("SELECT COUNT(*) as count FROM users", (err, row) => {
         if (row.count === 0) {
             const sampleUsers = [
-                { name: 'John Doe', email: 'john@example.com', age: 30 },
-                { name: 'Jane Smith', email: 'jane@example.com', age: 25 },
-                { name: 'Bob Johnson', email: 'bob@example.com', age: 35 }
+                { 
+                    name: 'John Doe', 
+                    email: 'john@example.com', 
+                    age: 30,
+                    address: JSON.stringify({
+                        street: '123 Sample St',
+                        city: 'Sample City',
+                        state: 'SC',
+                        zip_code: '12345',
+                        country: 'USA'
+                    }),
+                    profile: JSON.stringify({
+                        occupation: 'Sample Worker',
+                        company: 'Sample Corp',
+                        phone: '+1-555-000-0001',
+                        preferences: {
+                            newsletter: true,
+                            notifications: false,
+                            theme: 'dark'
+                        }
+                    })
+                },
+                { 
+                    name: 'Jane Smith', 
+                    email: 'jane@example.com', 
+                    age: 25,
+                    address: JSON.stringify({
+                        street: '456 Demo Ave',
+                        city: 'Demo City',
+                        state: 'DC',
+                        zip_code: '67890',
+                        country: 'USA'
+                    }),
+                    profile: JSON.stringify({
+                        occupation: 'Demo Designer',
+                        company: 'Demo Inc',
+                        phone: '+1-555-000-0002',
+                        preferences: {
+                            newsletter: false,
+                            notifications: true,
+                            theme: 'light'
+                        }
+                    })
+                },
+                { 
+                    name: 'Bob Johnson', 
+                    email: 'bob@example.com', 
+                    age: 35,
+                    address: JSON.stringify({
+                        street: '789 Test Blvd',
+                        city: 'Test City',
+                        state: 'TC',
+                        zip_code: '54321',
+                        country: 'USA'
+                    }),
+                    profile: JSON.stringify({
+                        occupation: 'Test Manager',
+                        company: 'Test Ltd',
+                        phone: '+1-555-000-0003',
+                        preferences: {
+                            newsletter: true,
+                            notifications: true,
+                            theme: 'auto'
+                        }
+                    })
+                }
             ];
             
             sampleUsers.forEach(user => {
-                db.run("INSERT INTO users (name, email, age) VALUES (?, ?, ?)", 
-                       [user.name, user.email, user.age]);
+                db.run("INSERT INTO users (name, email, age, address, profile) VALUES (?, ?, ?, ?, ?)", 
+                       [user.name, user.email, user.age, user.address, user.profile]);
             });
-            console.log('Sample users inserted');
+            console.log('Sample users with nested data inserted');
         }
     });
 });
@@ -61,6 +129,26 @@ app.get('/', (req, res) => {
     });
 });
 
+// Helper function to parse user data
+function parseUserData(row) {
+    const user = { ...row };
+    if (user.address) {
+        try {
+            user.address = JSON.parse(user.address);
+        } catch (e) {
+            user.address = null;
+        }
+    }
+    if (user.profile) {
+        try {
+            user.profile = JSON.parse(user.profile);
+        } catch (e) {
+            user.profile = null;
+        }
+    }
+    return user;
+}
+
 // GET all users
 app.get('/users', (req, res) => {
     db.all("SELECT * FROM users ORDER BY created_at DESC", (err, rows) => {
@@ -68,10 +156,11 @@ app.get('/users', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
+        const users = rows.map(parseUserData);
         res.json({
             message: 'Users retrieved successfully',
-            data: rows,
-            count: rows.length
+            data: users,
+            count: users.length
         });
     });
 });
@@ -90,9 +179,10 @@ app.get('/users/:id', (req, res) => {
             return;
         }
         if (row) {
+            const user = parseUserData(row);
             res.json({
                 message: 'User retrieved successfully',
-                data: row
+                data: user
             });
         } else {
             res.status(404).json({ error: 'User not found' });
@@ -100,11 +190,57 @@ app.get('/users/:id', (req, res) => {
     });
 });
 
+// Validation helper functions
+function validateAddress(address) {
+    if (!address) return null;
+    if (typeof address !== 'object') {
+        return 'Address must be an object';
+    }
+    if (!address.street || !address.city) {
+        return 'Address must contain at least street and city';
+    }
+    if (address.street.trim() === '') {
+        return 'Street cannot be empty';
+    }
+    return null;
+}
+
+function validateProfile(profile) {
+    if (!profile) return null;
+    if (typeof profile !== 'object') {
+        return 'Profile must be an object';
+    }
+    if (!profile.occupation) {
+        return 'Profile must contain occupation';
+    }
+    if (profile.occupation.trim() === '') {
+        return 'Occupation cannot be empty';
+    }
+    if (profile.phone && !profile.phone.match(/^\+?[\d\s\-\(\)]+$/)) {
+        return 'Invalid phone number format';
+    }
+    if (profile.preferences) {
+        if (typeof profile.preferences !== 'object') {
+            return 'Preferences must be an object';
+        }
+        if (profile.preferences.newsletter !== undefined && typeof profile.preferences.newsletter !== 'boolean') {
+            return 'Newsletter preference must be boolean';
+        }
+        if (profile.preferences.notifications !== undefined && typeof profile.preferences.notifications !== 'boolean') {
+            return 'Notifications preference must be boolean';
+        }
+        if (profile.preferences.theme && !['light', 'dark', 'auto'].includes(profile.preferences.theme)) {
+            return 'Theme must be one of: light, dark, auto';
+        }
+    }
+    return null;
+}
+
 // POST create new user
 app.post('/users', (req, res) => {
-    const { name, email, age } = req.body;
+    const { name, email, age, address, profile } = req.body;
     
-    // Validation
+    // Basic validation
     if (!name || !email) {
         return res.status(400).json({ 
             error: 'Name and email are required fields' 
@@ -119,10 +255,26 @@ app.post('/users', (req, res) => {
         });
     }
     
-    db.run("INSERT INTO users (name, email, age) VALUES (?, ?, ?)", 
-           [name, email, age || null], function(err) {
+    // Nested fields validation
+    const addressError = validateAddress(address);
+    if (addressError) {
+        return res.status(400).json({ error: addressError });
+    }
+    
+    const profileError = validateProfile(profile);
+    if (profileError) {
+        return res.status(400).json({ error: profileError });
+    }
+    
+    const addressJson = address ? JSON.stringify(address) : null;
+    const profileJson = profile ? JSON.stringify(profile) : null;
+    
+    db.run("INSERT INTO users (name, email, age, address, profile) VALUES (?, ?, ?, ?, ?)", 
+           [name, email, age || null, addressJson, profileJson], function(err) {
         if (err) {
-            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            console.log('POST - Database error code:', err.code);
+            console.log('POST - Database error message:', err.message);
+            if (err.code === 'SQLITE_CONSTRAINT' || err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
                 res.status(409).json({ error: 'Email already exists' });
             } else {
                 res.status(500).json({ error: err.message });
@@ -136,9 +288,10 @@ app.post('/users', (req, res) => {
                 res.status(500).json({ error: err.message });
                 return;
             }
+            const user = parseUserData(row);
             res.status(201).json({
                 message: 'User created successfully',
-                data: row
+                data: user
             });
         });
     });
@@ -147,7 +300,7 @@ app.post('/users', (req, res) => {
 // PUT update user by ID
 app.put('/users/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    const { name, email, age } = req.body;
+    const { name, email, age, address, profile } = req.body;
     
     if (isNaN(id)) {
         return res.status(400).json({ error: 'Invalid user ID' });
@@ -167,10 +320,26 @@ app.put('/users/:id', (req, res) => {
         });
     }
     
-    db.run("UPDATE users SET name = ?, email = ?, age = ? WHERE id = ?", 
-           [name, email, age || null, id], function(err) {
+    // Nested fields validation
+    const addressError = validateAddress(address);
+    if (addressError) {
+        return res.status(400).json({ error: addressError });
+    }
+    
+    const profileError = validateProfile(profile);
+    if (profileError) {
+        return res.status(400).json({ error: profileError });
+    }
+    
+    const addressJson = address ? JSON.stringify(address) : null;
+    const profileJson = profile ? JSON.stringify(profile) : null;
+    
+    db.run("UPDATE users SET name = ?, email = ?, age = ?, address = ?, profile = ? WHERE id = ?", 
+           [name, email, age || null, addressJson, profileJson, id], function(err) {
         if (err) {
-            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            console.log('PUT - Database error code:', err.code);
+            console.log('PUT - Database error message:', err.message);
+            if (err.code === 'SQLITE_CONSTRAINT' || err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
                 res.status(409).json({ error: 'Email already exists' });
             } else {
                 res.status(500).json({ error: err.message });
@@ -189,9 +358,10 @@ app.put('/users/:id', (req, res) => {
                 res.status(500).json({ error: err.message });
                 return;
             }
+            const user = parseUserData(row);
             res.json({
                 message: 'User updated successfully',
-                data: row
+                data: user
             });
         });
     });
@@ -224,9 +394,10 @@ app.delete('/users/:id', (req, res) => {
                 return;
             }
             
+            const user = parseUserData(row);
             res.json({
                 message: 'User deleted successfully',
-                data: row
+                data: user
             });
         });
     });

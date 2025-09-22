@@ -41,45 +41,94 @@ curl http://localhost:3000/
 # Get all users
 curl http://localhost:3000/users
 
-# Create a new user
+# Create a new user (basic data)
 curl -X POST http://localhost:3000/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com", "age": 30}'
 
+# Create a user with nested address and profile data
+curl -X POST http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Smith",
+    "email": "jane@example.com", 
+    "age": 28,
+    "address": {
+      "street": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "zip_code": "10001",
+      "country": "USA"
+    },
+    "profile": {
+      "occupation": "Software Developer",
+      "company": "Tech Corp",
+      "phone": "+1-555-123-4567",
+      "preferences": {
+        "newsletter": true,
+        "notifications": false,
+        "theme": "dark"
+      }
+    }
+  }'
+
 # Get user by ID
 curl http://localhost:3000/users/1
 
-# Update user
+# Update user (basic fields)
 curl -X PUT http://localhost:3000/users/1 \
   -H "Content-Type: application/json" \
   -d '{"name": "John Smith", "email": "johnsmith@example.com", "age": 31}'
+
+# Update user with nested data
+curl -X PUT http://localhost:3000/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Smith Updated",
+    "address": {
+      "street": "456 Updated Ave",
+      "city": "Boston",
+      "state": "MA"
+    },
+    "profile": {
+      "company": "New Company Inc",
+      "preferences": {
+        "theme": "light"
+      }
+    }
+  }'
 
 # Delete user
 curl -X DELETE http://localhost:3000/users/1
 ```
 
 ### API Endpoints
-- `GET /` - API health check and endpoint list
-- `GET /users` - Get all users
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create new user
-- `PUT /users/:id` - Update user by ID
-- `DELETE /users/:id` - Delete user by ID
+- `GET /` - API health check and endpoint list (returns server status and available endpoints)
+- `GET /users` - Get all users with count and pagination support
+- `GET /users/:id` - Get specific user by ID (supports nested address and profile data)
+- `POST /users` - Create new user (supports nested address and profile objects)  
+- `PUT /users/:id` - Update existing user by ID (supports partial and complete updates)
+- `DELETE /users/:id` - Delete user by ID (returns deleted user data for confirmation)
 
 ### Running API Tests with Robot Framework
 ```bash
 # Run API tests (make sure API server is running first)
-robot atests/features/api/api_tests.robot
+robot atests/features/common/api/api_tests.robot
 
-# Run specific test tags
-robot --include positive atests/features/api/api_tests.robot
-robot --include negative atests/features/api/api_tests.robot
+# Run specific test tags  
+robot --include positive_test atests/features/common/api/api_tests.robot
+robot --include negative_test atests/features/common/api/api_tests.robot
+
+# Run API health check tests
+robot --include smoke_test atests/features/common/api/api_tests.robot
 ```
 
 ### Database
-- SQLite database file: `database.sqlite`
+- SQLite database file: `demo_resourses/database.sqlite`
 - Automatically created with sample data on first run
-- Simple user table with fields: id, name, email, age, created_at
+- User table with fields: id, name, email, age, address (JSON), profile (JSON), created_at
+- Supports complex user data with nested address and profile information
+- Sample users are automatically created if the database is empty
 
 ---
 
@@ -317,16 +366,15 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
   - Or use full Python module syntax: `python -m robot`
 - **ModuleNotFoundError**: Reinstall Robot Framework: `pip install --upgrade robotframework`
 
-### Project Report using Git Actions:  
-chromium browser:  
-https://reinaldorossetti.github.io/robot_atdd_playwright_saucedemo/chromium/#  
-firefox browser:  
-https://reinaldorossetti.github.io/robot_atdd_playwright_saucedemo/firefox/#  
-webkit browser:  
-https://reinaldorossetti.github.io/robot_atdd_playwright_saucedemo/webkit/#
+### Continuous Integration and Reports
+This project supports automated test execution across multiple browsers:
+- **Chromium**: Default browser for most test scenarios
+- **Firefox**: Cross-browser compatibility testing
+- **WebKit**: Safari/WebKit engine testing
 
-Na esteira estamos usando em uma PIPELINE o Pabot para rodar em paralelo as features:  
-https://github.com/reinaldorossetti/robot_atdd_playwright_saucedemo/blob/main/.github/workflows/test_robot_pabot.yml
+Test results are generated using Allure reporting framework for comprehensive test analytics and visual reports.
+
+This project uses Pabot for parallel test execution in CI/CD pipelines. See GitHub Actions workflow configuration for detailed implementation examples.
 
 ### Quick Start (Experienced Users)
 If you're experienced with Python development, here's the minimal setup:
@@ -577,6 +625,7 @@ python -m robot --listener "allure_robotframework:./allure-results" --rerunfaile
 - `login_tests` - All authentication related tests
 - `burger_menu_tests` - All burger menu navigation tests  
 - `shopping_cart_tests` - All shopping cart functionality tests
+- `api_tests` - All API testing scenarios (CRUD operations, validation, error handling)
 
 ### Scenario-Level Tags
 - `login_ok` - Successful login scenarios
@@ -588,6 +637,15 @@ python -m robot --listener "allure_robotframework:./allure-results" --rerunfaile
 - `burger_menu_multiple_ops` - Complex menu operations
 - `shopping_cart_ok` - Successful cart operations
 - `shopping_cart_remove` - Cart item removal tests
+
+### API-Specific Test Tags
+- `smoke_test` - API health check and basic connectivity tests
+- `positive_test` - Successful API operation scenarios
+- `negative_test` - Error handling and validation tests
+- `crud_operation` - Create, Read, Update, Delete operations
+- `user_creation` - User creation scenarios
+- `user_retrieval` - User data retrieval tests
+- `nested_test` - Complex nested data structure tests
 
 ### Usage Examples
 ```bash
