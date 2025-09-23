@@ -1,5 +1,7 @@
 *** Settings ***
 Library     Browser                         # Playwright browser automation library
+Library     Collections                     # Python collections library for data operations
+
 # Import base test functionality and page element definitions
 Resource     ../../../../../support/baseTests.robot    # Base test setup and common keywords
 Variables    ../elements/login_page.yaml            # Login page element locators and test data
@@ -109,3 +111,20 @@ Run Negative Login Test
     Given You display the Login Page                    # Navigate to login page
     Perform the site authentication    ${username}    ${password}  # Attempt login with test credentials
     Then Validate if the login was fail                # Verify login failure and error handling
+
+Negative login dataset is available
+    [Documentation]    Ensures the negative login dataset is loaded and provides case count for logging.
+    ${total_cases}=    Get Length    ${NEGATIVE_TESTS}
+    Log    Negative login dataset loaded with ${total_cases} cases
+
+Run all negative login tests
+    [Documentation]    Iterates over all negative login scenarios and validates each one.
+    FOR    ${TEST_NAME}    IN    @{NEGATIVE_TESTS.keys()}
+        ${CASE}=    Get From Dictionary    ${NEGATIVE_TESTS}    ${TEST_NAME}
+        Log    Running negative test case: ${TEST_NAME}
+        Run Negative Login Test    ${CASE['username']}    ${CASE['password']}
+    END
+
+All negative login tests should be rejected
+    [Documentation]    Confirms completion of negative login scenarios; assertions happen per-case.
+    Log    All negative login tests executed and validated

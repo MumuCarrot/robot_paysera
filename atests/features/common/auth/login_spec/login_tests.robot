@@ -51,11 +51,6 @@ Scenario - Run Negative Login Tests
     ...                combinations to ensure the login system properly handles various
     ...                authentication failure scenarios (empty fields, wrong credentials, etc.).
     [Tags]    login_fail    negative_test    data_driven_test    comprehensive_test
-    # Iterate through all negative test cases defined in test data
-    FOR    ${TEST_NAME}    IN    @{NEGATIVE_TESTS.keys()}
-        # Extract test case details from the test data dictionary
-        ${CASE}=    Get From Dictionary    ${NEGATIVE_TESTS}    ${TEST_NAME}
-        Log    Running negative test case: ${TEST_NAME}                  # Log current test case for debugging
-        # Execute individual negative login test with specific credentials
-        Run Negative Login Test    ${CASE['username']}    ${CASE['password']}
-    END
+    Given Negative login dataset is available
+    When Run all negative login tests
+    Then All negative login tests should be rejected
