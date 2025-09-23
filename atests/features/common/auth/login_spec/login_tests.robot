@@ -1,9 +1,15 @@
 *** Settings ***
-# Import login-specific keywords and functions
-Resource        keywords/login_keywords.robot
+# Import required libraries for login testing
+Library           Browser                         # Playwright browser automation library
+Library           Collections                     # Python collections library for data operations
+
+# Import login-specific keywords and base functionality
+Resource          keywords/login_keywords.robot   # Login-specific keywords
+Resource          ../../../../support/baseTests.robot  # Base test setup and common functionality
+Resource          ../../common_global_variables.robot  # Common global variables
 
 # Configuration for the entire test suite
-Suite Setup       Set Log Level    ${LOG_LEVEL}    # Set logging level for debugging
+Suite Setup       Set Log Level    DEBUG           # Set logging level for debugging
 Test Teardown     Steps to Close Browser          # Cleanup browser after each test
 Force Tags        login_tests                     # Tag all tests in this suite
 

@@ -5,17 +5,3 @@ EMPTY: ""
 OUT_USER: locked_out_user
 PROBLEM_USER: problem_user
 PASSWORD: secret_sauce
-
-NEGATIVE_TESTS:
-  WRONG_USER_PASSWORD:
-    username: abcde
-    password: 1234567
-  EMPTY_USERNAME:
-    username: ""
-    password: 1234567
-  EMPTY_PASSWORD:
-    username: standard_user
-    password: ""
-  EMPTY_BOTH:
-    username: ""
-    password: ""

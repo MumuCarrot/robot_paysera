@@ -492,15 +492,18 @@ pabot --processes 2 -d my_reports atests/features/team_alpha/
 # Run all Team Beta tests (shopping cart)
 robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/
 
-# Run shopping cart tests only  
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/shopping_cart_spec/
+# Run with fast execution (headless + error-only logging)
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports atests/features/team_beta/
+
+# Run shopping cart tests only with debug configuration
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/team_beta/shopping_cart_spec/
 
 # Run specific shopping cart scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_ok ./
 robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_remove ./
 
-# Run Team Beta tests in parallel
-pabot --processes 2 -d my_reports atests/features/team_beta/
+# Run Team Beta tests in parallel with variable overrides
+pabot --processes 2 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/team_beta/
 ```
 
 #### Common Features Commands (Authentication + API)
@@ -508,18 +511,21 @@ pabot --processes 2 -d my_reports atests/features/team_beta/
 # Run all common features tests (authentication + API)
 robot --loglevel DEBUG:INFO -d my_reports atests/features/common/
 
-# Run authentication tests only
-robot --loglevel DEBUG:INFO -d my_reports atests/features/common/auth/
+# Run with production-like settings (headless + info logging)
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports atests/features/common/
 
-# Run API tests only
-robot --loglevel DEBUG:INFO -d my_reports atests/features/common/api/
+# Run authentication tests only with debugging
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/common/auth/
 
-# Run specific login scenarios
-robot --loglevel DEBUG:INFO -d my_reports -i login_ok ./
-robot --loglevel DEBUG:INFO -d my_reports -i login_negative ./
+# Run API tests only (headless recommended for API tests)
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports atests/features/common/api/
 
-# Run common features in parallel
-pabot --processes 2 -d my_reports atests/features/common/
+# Run specific login scenarios with variable overrides
+robot -v LOG_LEVEL:DEBUG -d my_reports -i login_ok ./
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports -i login_negative ./
+
+# Run common features in parallel with optimized settings
+pabot --processes 2 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/common/
 ```
 
 ### Cross-Team Collaboration Guidelines
@@ -576,27 +582,153 @@ robot --loglevel DEBUG:INFO -d my_reports -i login_negative ./
 ```
 
 ### Run Tests with Different Browsers
-Test across multiple browser engines:
+Test across multiple browser engines with variable overrides:
 ```bash
 # Run with Chrome (default)
 robot --loglevel DEBUG:INFO -d my_reports -v BROWSER:chromium ./
 
-# Run with Firefox  
-robot --loglevel DEBUG:INFO -d my_reports -v BROWSER:firefox ./
+# Run with Chrome in headless mode with INFO logging
+robot -v BROWSER:chromium -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports ./
 
-# Run with Safari/WebKit
-robot --loglevel DEBUG:INFO -d my_reports -v BROWSER:webkit ./
+# Run with Firefox with debug configuration
+robot -v BROWSER:firefox -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports ./
+
+# Run with Safari/WebKit in production-like mode
+robot -v BROWSER:webkit -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports ./
+
+# Cross-browser testing with optimized logging
+robot -v BROWSER:chromium -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d chromium_reports ./
+robot -v BROWSER:firefox -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d firefox_reports ./
+robot -v BROWSER:webkit -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d webkit_reports ./
 ```
 
 ### Parallel Execution with Pabot
-Execute tests in parallel for faster execution:
+Execute tests in parallel for faster execution with variable overrides:
 ```bash
-# Run tests in parallel across 4 processes
+# Run tests in parallel across 4 processes (default settings)
 pabot --processes 4 -d my_reports ./
 
-# Run specific feature tests in parallel
-pabot --processes 2 -d my_reports -i shopping_cart_tests ./
+# Run tests in parallel with headless mode and minimal logging
+pabot --processes 4 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports ./
+
+# Run specific feature tests in parallel with optimized settings
+pabot --processes 2 -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports -i shopping_cart_tests ./
+
+# Cross-browser parallel execution with variable overrides
+pabot --processes 2 -v BROWSER:chromium -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d chromium_parallel ./
+pabot --processes 2 -v BROWSER:firefox -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d firefox_parallel ./
 ```
+
+## Variable Override Configuration
+
+This project supports dynamic variable overriding for key configuration settings through command line arguments or environment variables. This allows flexible test execution without modifying source files.
+
+### Available Variables for Override
+
+#### HEADLESS_FLAG
+Control browser visibility during test execution:
+- `true` - Run browser in headless mode (no UI, faster execution)
+- `false` - Run browser with visible UI (useful for debugging)
+
+#### LOG_LEVEL
+Control the verbosity of test execution logging:
+- `TRACE` - Maximum detail logging (most verbose)
+- `DEBUG` - Detailed logging for debugging (default)
+- `INFO` - Informational messages only
+- `WARN` - Warning and error messages only
+- `ERROR` - Error messages only (least verbose)
+
+### Override Methods
+
+#### Method 1: Command Line Variables (Recommended)
+Use the `-v` flag to override variables directly in the command:
+
+```bash
+# Single variable override
+robot -v HEADLESS_FLAG:true atests/
+
+# Multiple variable override
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO atests/
+
+# Override with specific test execution
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/team_alpha/
+
+# Run tests with headless mode and minimal logging
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports ./
+
+# Debug mode with visible browser and verbose logging
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports ./
+```
+
+#### Method 2: Environment Variables
+Set environment variables before running tests:
+
+**Windows PowerShell:**
+```powershell
+# Set environment variables
+$env:HEADLESS_FLAG="true"
+$env:LOG_LEVEL="INFO"
+robot atests/
+
+# Or set and run in one command
+$env:HEADLESS_FLAG="true"; $env:LOG_LEVEL="INFO"; robot -d my_reports ./
+```
+
+**Windows Command Prompt:**
+```cmd
+# Set environment variables
+set HEADLESS_FLAG=true
+set LOG_LEVEL=INFO
+robot atests/
+
+# Or set and run in one command
+set HEADLESS_FLAG=true && set LOG_LEVEL=INFO && robot -d my_reports ./
+```
+
+**Linux/macOS:**
+```bash
+# Set environment variables
+export HEADLESS_FLAG=true
+export LOG_LEVEL=INFO
+robot atests/
+
+# Or set and run in one command
+HEADLESS_FLAG=true LOG_LEVEL=INFO robot -d my_reports ./
+```
+
+### Practical Override Examples
+
+#### CI/CD Pipeline Configuration
+```bash
+# Headless execution with minimal logging for faster CI/CD
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d ci_reports ./
+
+# Parallel execution with variable overrides
+pabot --processes 4 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports ./
+```
+
+#### Development and Debugging
+```bash
+# Debug mode: visible browser with detailed logging
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d debug_reports ./
+
+# Team-specific testing with overrides
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:INFO -d my_reports atests/features/team_alpha/burger_menu_spec/
+```
+
+#### Cross-Browser Testing with Overrides
+```bash
+# Test with different browsers and configurations
+robot -v BROWSER:chromium -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d chromium_reports ./
+robot -v BROWSER:firefox -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d firefox_reports ./
+```
+
+### Default Values
+If no override is specified, the system uses these defaults:
+- `HEADLESS_FLAG`: `false` (browser UI visible)
+- `LOG_LEVEL`: `DEBUG` (detailed logging)
+
+These defaults are defined in `atests/features/common/common_global_variables.robot` and can be modified there if needed.
 ### Allure Reporting
 Generate and serve detailed Allure reports with rich test analytics.
 **Note:** Allure automatically creates required directories (`allure-results`, `allure-report`), no manual creation needed.
@@ -669,6 +801,9 @@ Project Structure Conventions
 ├── atests/                                    # Main test automation folder (root code)
 │   ├── features/                             # Feature-based test organization
 │   │   ├── common/                          # Common/shared features across teams
+│   │   │   ├── common_global_variables.robot # ✅ Global variables with override support
+│   │   │   │                                # Supports HEADLESS_FLAG and LOG_LEVEL override
+│   │   │   │                                # via command line (-v) or environment variables
 │   │   │   ├── api/                         # API testing features
 │   │   │   │   ├── elements/                # API-specific elements
 │   │   │   │   │   └── api_tests.yaml      # API test configuration
@@ -683,6 +818,7 @@ Project Structure Conventions
 │   │   │           │   └── login_keywords.robot # Login action keywords
 │   │   │           └── login_tests.robot   # Login test scenarios
 │   │   ├── team_alpha/                      # Team Alpha specific features
+│   │   │   ├── team_alpha_variables.robot   # Team Alpha specific variables
 │   │   │   ├── api_improved/                # Improved API testing
 │   │   │   │   └── api_tests_improved.robot # Enhanced API test scenarios
 │   │   │   └── burger_menu_spec/            # Burger menu specification tests
@@ -692,20 +828,20 @@ Project Structure Conventions
 │   │   │       │   └── burger_menu_keywords.robot # Burger menu action keywords
 │   │   │       └── burger_menu_tests.robot # Burger menu test scenarios
 │   │   └── team_beta/                       # Team Beta specific features
+│   │       ├── team_beta_global_variables.robot # Team Beta specific variables  
 │   │       └── shopping_cart_spec/          # Shopping cart specification tests
 │   │           ├── elements/                # Cart-specific page elements
 │   │           │   └── shopping_cart_page.yaml # Shopping cart locators
 │   │           ├── keywords/                # Cart-specific keywords
 │   │           │   └── shopping_cart_keywords.robot # Cart action keywords
 │   │           └── shopping_cart_tests.robot # Shopping cart test scenarios
-│   ├── support/                             # Common test utilities and base functions
-│   │   ├── baseTests.robot                 # Base keywords used across all tests
-│   │   ├── libraries/                      # Custom Python libraries
-│   │   │   └── baseTests.py               # Custom Python test utilities
-│   │   └── resources/                      # Test data and configuration
-│   │       └── data/                       # Test data files
-│   │           └── mass_of_tests.yaml     # Bulk test data configuration
-│   └── global_variables.robot              # Global variables and imports
+│   └── support/                             # Common test utilities and base functions
+│       ├── baseTests.robot                 # Base keywords used across all tests
+│       ├── libraries/                      # Custom Python libraries
+│       │   └── baseTests.py               # Custom Python test utilities
+│       └── resources/                      # Test data and configuration
+│           └── data/                       # Test data files
+│               └── mass_of_tests.yaml     # Bulk test data configuration
 ├── browser/                                # Browser artifacts (screenshots, traces)
 │   ├── screenshot/                         # Test execution screenshots
 │   └── traces/                            # Playwright traces for debugging

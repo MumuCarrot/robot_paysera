@@ -3,8 +3,9 @@
 Library      Browser     # Playwright browser automation library
 Library      BuiltIn     # Robot Framework built-in library
 
-# Import base test functionality and burger menu page elements
+# Import base test functionality, team variables, and burger menu page elements
 Resource     ../../../../support/baseTests.robot    # Common test setup and utilities
+Resource     ../../team_alpha_variables.robot       # Team Alpha specific variables and configuration
 Variables    ../elements/burger_menu_page.yaml      # Burger menu element locators and test data
 
 # =============================================================================
@@ -247,7 +248,8 @@ User should be on inventory page
 User should be redirected to about page
     [Documentation]    Verifies that the user has been redirected to the external SauceLabs about page.
     ...                Validates successful external navigation and URL redirection.
-    Wait For Load State    state=networkidle    timeout=15s                         # Wait for external page to fully load
+    ...                Uses extended timeout for external page loading as third-party sites can be slower.
+    Wait For Load State    state=networkidle    timeout=${PAGE_LOAD_TIMEOUT}        # Wait for external page to fully load (using configurable timeout)
     ${current_url}=    Get Url                                                       # Get current page URL
     Should Contain    ${current_url}    saucelabs.com                               # Verify URL contains SauceLabs domain
     

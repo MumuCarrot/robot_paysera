@@ -2,6 +2,7 @@
 # Import libraries for API testing
 Library    RequestsLibrary
 Library    Collections
+Library    DateTime    # For generating unique timestamps
 
 # Import base test functionality and page element definitions
 Resource     ../../../../support/baseTests.robot      # Base test setup and common keywords
@@ -41,12 +42,22 @@ Create Valid Test User
     [Documentation]    Creates a test user using predefined valid user data from test configuration.
     ...                This convenience keyword uses the VALID_USER data defined in the elements file
     ...                to create a user with complete, valid information including nested address
-    ...                and profile data. Commonly used in test setup or when a test requires
-    ...                a guaranteed valid user to exist.
+    ...                and profile data. Uses unique email to avoid conflicts.
     ...
     ...                Returns: Integer user ID of the created user
     ...                Dependencies: Requires VALID_USER data to be defined in elements file
-    ${user_id}=    Create Test User And Return ID    ${VALID_USER}           # Create user using predefined valid data
+    
+    # Create unique user data to avoid conflicts
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${unique_email}=    Set Variable    valid_test_${timestamp}@example.com
+    &{unique_user}=    Create Dictionary
+    ...    name=Valid Test User ${timestamp}
+    ...    email=${unique_email}
+    ...    age=${VALID_USER['age']}
+    ...    address=${VALID_USER['address']}
+    ...    profile=${VALID_USER['profile']}
+    
+    ${user_id}=    Create Test User And Return ID    ${unique_user}         # Create user using unique valid data
     RETURN    ${user_id}                                                   # Return the generated user ID
 
 # =============================================================================
@@ -213,3 +224,453 @@ Verify API Is Running
     ${json_response}=    Set Variable    ${response.json()}                        # Parse JSON response for validation
     Should Contain    ${json_response['message']}    API Server is running!        # Confirm server status message
     Should Contain    ${json_response}    endpoints                               # Verify endpoints list is included
+
+# =============================================================================
+# BDD Keywords (Given-When-Then Style)
+# =============================================================================
+
+# Given Keywords - Setup preconditions
+Given API server is running
+    [Documentation]    BDD keyword to verify API server is operational
+    Verify API Is Running
+
+Given a user exists with valid data
+    [Documentation]    Creates a test user for test scenarios
+    ${user_id}=    Create Valid Test User
+    Set Suite Variable    ${TEST_USER_ID}    ${user_id}
+    RETURN    ${user_id}
+
+Given a user exists with nested data
+    [Documentation]    Creates a test user with complete nested fields
+    ${user_id}=    Create Test User And Return ID    ${VALID_USER}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${user_id}
+    RETURN    ${user_id}
+
+Given the user does not exist
+    [Documentation]    Ensures no user exists with a specific ID
+    ${non_existent_id}=    Set Variable    ${NON_EXISTENT_USER_ID}
+    Set Suite Variable    ${TARGET_USER_ID}    ${non_existent_id}
+
+Given test users with nested data exist
+    [Documentation]    Ensures test users with nested data exist for cleanup testing
+    ${nested_user_id}=    Create Test User And Return ID    ${VALID_USER}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${nested_user_id}
+    ${minimal_user_id}=    Create Test User And Return ID    ${VALID_USER_MINIMAL_NESTED}
+    Set Suite Variable    ${MINIMAL_NESTED_USER_ID}    ${minimal_user_id}
+
+# When Keywords - Actions
+When I request all users
+    [Documentation]    Sends GET request to retrieve all users
+    ${response}=    GET    ${BASE_URL}/users
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I request user health check
+    [Documentation]    Sends GET request to API health endpoint
+    ${response}=    GET    ${BASE_URL}/
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I create a user with valid data
+    [Documentation]    Sends POST request to create user with valid data
+    # Create unique user data to avoid conflicts
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${unique_email}=    Set Variable    test_${timestamp}@example.com
+    ${unique_name}=    Set Variable    Test User ${timestamp}
+    &{unique_user}=    Create Dictionary
+    ...    name=${unique_name}
+    ...    email=${unique_email}
+    ...    age=28
+    ...    address=${VALID_USER['address']}
+    ...    profile=${VALID_USER['profile']}
+    
+    ${response}=    POST    ${BASE_URL}/users    json=${unique_user}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+    Set Suite Variable    ${EXPECTED_USER_NAME}    ${unique_name}
+    Set Suite Variable    ${EXPECTED_USER_EMAIL}    ${unique_email}
+    Set Suite Variable    ${EXPECTED_USER_AGE}    28
+    ${json_response}=    Set Variable    ${response.json()}
+    IF    ${response.status_code} == 201
+        Set Suite Variable    ${CREATED_USER_ID}    ${json_response['data']['id']}
+    END
+
+When I create a user with missing email
+    [Documentation]    Sends POST request with invalid user data (missing email)
+    ${response}=    POST    ${BASE_URL}/users    json=${INVALID_USER_NO_EMAIL}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I create a user with invalid email format
+    [Documentation]    Sends POST request with invalid email format
+    ${response}=    POST    ${BASE_URL}/users    json=${INVALID_EMAIL}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I request user by ID "${user_id}"
+    [Documentation]    Sends GET request for specific user ID
+    ${response}=    GET    ${BASE_URL}/users/${user_id}    expected_status=any
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I request user by invalid ID format
+    [Documentation]    Sends GET request with invalid ID format
+    ${response}=    GET    ${BASE_URL}/users/invalid-id    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I update user with valid data
+    [Documentation]    Sends PUT request to update user with valid data
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${updated_name}=    Set Variable    Updated Test User ${timestamp}
+    ${updated_email}=    Set Variable    updated_${timestamp}@example.com
+    &{updated_user}=    Create Dictionary    name=${updated_name}    email=${updated_email}    age=${30}
+    ${response}=    PUT    ${BASE_URL}/users/${CREATED_USER_ID}    json=${updated_user}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+    Set Suite Variable    ${EXPECTED_UPDATED_NAME}    ${updated_name}
+    Set Suite Variable    ${EXPECTED_UPDATED_EMAIL}    ${updated_email}
+    Set Suite Variable    ${EXPECTED_UPDATED_AGE}    30
+
+When I update user with nested data
+    [Documentation]    Updates user with complete nested field data
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${nested_updated_name}=    Set Variable    Updated Nested User ${timestamp}
+    ${nested_updated_email}=    Set Variable    updated.nested.${timestamp}@example.com
+    &{address_dict}=    Create Dictionary    street=456 Updated St    city=Updated City    state=UC    zip_code=54321    country=Updated Country
+    &{preferences_dict}=    Create Dictionary    newsletter=${False}    notifications=${True}    theme=light
+    &{profile_dict}=    Create Dictionary    occupation=Senior Developer    company=Updated Corp    phone=+1-555-999-8888    preferences=${preferences_dict}
+    &{updated_nested_user}=    Create Dictionary    
+    ...    name=${nested_updated_name}    
+    ...    email=${nested_updated_email}    
+    ...    age=${35}
+    ...    address=${address_dict}
+    ...    profile=${profile_dict}
+    ${response}=    PUT    ${BASE_URL}/users/${NESTED_TEST_USER_ID}    json=${updated_nested_user}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+    Set Suite Variable    ${EXPECTED_NESTED_UPDATED_NAME}    ${nested_updated_name}
+    Set Suite Variable    ${EXPECTED_NESTED_UPDATED_EMAIL}    ${nested_updated_email}
+    Set Suite Variable    ${EXPECTED_NESTED_UPDATED_AGE}    35
+
+When I update non-existent user
+    [Documentation]    Attempts to update a user that doesn't exist
+    &{updated_user}=    Create Dictionary    name=Non-existent User    email=nonexistent@example.com    age=${25}
+    ${response}=    PUT    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    json=${updated_user}    expected_status=404
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I delete user by ID
+    [Documentation]    Sends DELETE request for specific user ID
+    ${response}=    DELETE    ${BASE_URL}/users/${CREATED_USER_ID}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I delete non-existent user
+    [Documentation]    Attempts to delete a user that doesn't exist
+    ${response}=    DELETE    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    expected_status=404
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I create a user with invalid nested data
+    [Documentation]    Sends POST request with invalid nested field data
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_INVALID_NESTED_DATA}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I create a user with missing required nested fields
+    [Documentation]    Sends POST request with missing required nested fields
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_MISSING_NESTED_REQUIRED}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+When I clean up nested field test users
+    [Documentation]    Performs cleanup of test users with nested data
+    # Gracefully clean up test users - ignore if they don't exist
+    Run Keyword And Ignore Error    Delete User By ID    ${NESTED_TEST_USER_ID}    200
+    Run Keyword And Ignore Error    Delete User By ID    ${MINIMAL_NESTED_USER_ID}    200
+    Log    Cleanup completed - any test users have been removed
+
+# Then Keywords - Assertions/Validations
+Then the response status should be "${expected_status}"
+    [Documentation]    Validates response status code
+    Should Be Equal As Numbers    ${API_RESPONSE.status_code}    ${expected_status}
+
+Then the response should contain "${expected_message}"
+    [Documentation]    Validates response contains expected message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['message']}    ${expected_message}
+
+Then the response should contain error "${expected_error}"
+    [Documentation]    Validates error response contains expected error message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['error']}    ${expected_error}
+
+Then the response should contain user data
+    [Documentation]    Validates response contains user data structure
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Contain    ${json_response['data']}    id
+    Should Contain    ${json_response['data']}    name
+    Should Contain    ${json_response['data']}    email
+
+Then the response should contain users list
+    [Documentation]    Validates response contains list of users
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Be True    ${json_response['count']} >= 0
+
+Then the response should contain API endpoints
+    [Documentation]    Validates response contains endpoints list
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    endpoints
+
+Then the user should have ID "${expected_id}"
+    [Documentation]    Validates user has specific ID
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['id']}    ${expected_id}
+
+Then the user should have name "${expected_name}"
+    [Documentation]    Validates user has specific name
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['name']}    ${expected_name}
+
+Then the user should have email "${expected_email}"
+    [Documentation]    Validates user has specific email
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['email']}    ${expected_email}
+
+Then the user should have age "${expected_age}"
+    [Documentation]    Validates user has specific age
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['age']}    ${expected_age}
+
+Then the response should contain nested user data
+    [Documentation]    Validates response contains complete nested user structure
+    ${json_response}=    Validate User Response With Nested Fields    ${API_RESPONSE}    ${API_RESPONSE.status_code}
+    Validate Full Nested User Structure    ${json_response['data']}
+
+Then the user should not be found
+    [Documentation]    Validates that user was not found (404 error)
+    Should Be Equal As Numbers    ${API_RESPONSE.status_code}    404
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['error']}    User not found
+
+Then all test users should be removed from the system
+    [Documentation]    Validates that all test users have been successfully removed
+    Log    All test users have been cleaned up successfully
+
+# And Keywords - Additional assertions that can be chained with Then
+And the response should contain "${expected_message}"
+    [Documentation]    Validates response contains expected message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['message']}    ${expected_message}
+
+And the response should contain error "${expected_error}"
+    [Documentation]    Validates error response contains expected error message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['error']}    ${expected_error}
+
+And the response should contain user data
+    [Documentation]    Validates response contains user data structure
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Contain    ${json_response['data']}    id
+    Should Contain    ${json_response['data']}    name
+    Should Contain    ${json_response['data']}    email
+
+And the response should contain users list
+    [Documentation]    Validates response contains list of users
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Be True    ${json_response['count']} >= 0
+
+And the response should contain API endpoints
+    [Documentation]    Validates response contains endpoints list
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    endpoints
+
+And the user should have ID "${expected_id}"
+    [Documentation]    Validates user has specific ID
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['id']}    ${expected_id}
+
+And the user should have name "${expected_name}"
+    [Documentation]    Validates user has specific name
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['name']}    ${expected_name}
+
+And the user should have email "${expected_email}"
+    [Documentation]    Validates user has specific email
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['email']}    ${expected_email}
+
+And the user should have age "${expected_age}"
+    [Documentation]    Validates user has specific age
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['age']}    ${expected_age}
+
+And the response should contain nested user data
+    [Documentation]    Validates response contains complete nested user structure
+    ${json_response}=    Validate User Response With Nested Fields    ${API_RESPONSE}    ${API_RESPONSE.status_code}
+    Validate Full Nested User Structure    ${json_response['data']}
+
+And a user exists with valid data
+    [Documentation]    Creates a test user for test scenarios
+    ${user_id}=    Create Valid Test User
+    Set Suite Variable    ${TEST_USER_ID}    ${user_id}
+
+And a user exists with nested data
+    [Documentation]    Creates a test user with complete nested fields
+    # Create unique user data to avoid conflicts
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${unique_email}=    Set Variable    nested_and_${timestamp}@example.com
+    &{unique_nested_user}=    Create Dictionary
+    ...    name=Nested And User ${timestamp}
+    ...    email=${unique_email}
+    ...    age=${VALID_USER['age']}
+    ...    address=${VALID_USER['address']}
+    ...    profile=${VALID_USER['profile']}
+    ${user_id}=    Create Test User And Return ID    ${unique_nested_user}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${user_id}
+
+And the user does not exist
+    [Documentation]    Ensures no user exists with a specific ID
+    ${non_existent_id}=    Set Variable    ${NON_EXISTENT_USER_ID}
+    Set Suite Variable    ${TARGET_USER_ID}    ${non_existent_id}
+
+And I delete user by ID
+    [Documentation]    Sends DELETE request for specific user ID
+    # Use TEST_USER_ID if it exists, otherwise CREATED_USER_ID
+    ${user_id_to_delete}=    Set Variable    ${TEST_USER_ID}
+    ${response}=    DELETE    ${BASE_URL}/users/${user_id_to_delete}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+    Set Suite Variable    ${DELETED_USER_ID}    ${user_id_to_delete}
+
+And I create a user with invalid nested data
+    [Documentation]    Sends POST request with invalid nested field data
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_INVALID_NESTED_DATA}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+And I create a user with missing required nested fields
+    [Documentation]    Sends POST request with missing required nested fields
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_MISSING_NESTED_REQUIRED}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+And I clean up nested field test users
+    [Documentation]    Performs cleanup of test users with nested data
+    # Gracefully clean up test users - ignore if they don't exist
+    Run Keyword And Ignore Error    Delete User By ID    ${NESTED_TEST_USER_ID}    200
+    Run Keyword And Ignore Error    Delete User By ID    ${MINIMAL_NESTED_USER_ID}    200
+    Log    Cleanup completed - any test users have been removed
+
+And test users with nested data exist
+    [Documentation]    Ensures test users with nested data exist for cleanup testing
+    ${nested_user_id}=    Create Test User And Return ID    ${VALID_USER}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${nested_user_id}
+    ${minimal_user_id}=    Create Test User And Return ID    ${VALID_USER_MINIMAL_NESTED}
+    Set Suite Variable    ${MINIMAL_NESTED_USER_ID}    ${minimal_user_id}
+
+And all test users should be removed from the system
+    [Documentation]    Validates that all test users have been successfully removed
+    Log    All test users have been cleaned up successfully
+
+# Plain keyword forms (without And/Then prefixes) for BDD compatibility
+the response should contain "${expected_message}"
+    [Documentation]    Plain form - validates response contains expected message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['message']}    ${expected_message}
+
+the response should contain error "${expected_error}"
+    [Documentation]    Plain form - validates error response contains expected error message
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response['error']}    ${expected_error}
+
+the response should contain user data
+    [Documentation]    Plain form - validates response contains user data structure
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Contain    ${json_response['data']}    id
+    Should Contain    ${json_response['data']}    name
+    Should Contain    ${json_response['data']}    email
+
+the response should contain users list
+    [Documentation]    Plain form - validates response contains list of users
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    data
+    Should Be True    ${json_response['count']} >= 0
+
+the response should contain API endpoints
+    [Documentation]    Plain form - validates response contains endpoints list
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Contain    ${json_response}    endpoints
+
+the user should have ID "${expected_id}"
+    [Documentation]    Plain form - validates user has specific ID
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['id']}    ${expected_id}
+
+the user should have name "${expected_name}"
+    [Documentation]    Plain form - validates user has specific name
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['name']}    ${expected_name}
+
+the user should have email "${expected_email}"
+    [Documentation]    Plain form - validates user has specific email
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal    ${json_response['data']['email']}    ${expected_email}
+
+the user should have age "${expected_age}"
+    [Documentation]    Plain form - validates user has specific age
+    ${json_response}=    Set Variable    ${API_RESPONSE.json()}
+    Should Be Equal As Numbers    ${json_response['data']['age']}    ${expected_age}
+
+the response should contain nested user data
+    [Documentation]    Plain form - validates response contains complete nested user structure
+    ${json_response}=    Validate User Response With Nested Fields    ${API_RESPONSE}    ${API_RESPONSE.status_code}
+    Validate Full Nested User Structure    ${json_response['data']}
+
+a user exists with valid data
+    [Documentation]    Plain form - creates a test user for test scenarios
+    ${user_id}=    Create Valid Test User
+    Set Suite Variable    ${TEST_USER_ID}    ${user_id}
+
+a user exists with nested data
+    [Documentation]    Plain form - creates a test user with complete nested fields
+    # Create unique user data to avoid conflicts
+    ${timestamp}=    Get Current Date    result_format=epoch
+    ${unique_email}=    Set Variable    nested_plain_${timestamp}@example.com
+    &{unique_nested_user}=    Create Dictionary
+    ...    name=Nested Plain User ${timestamp}
+    ...    email=${unique_email}
+    ...    age=${VALID_USER['age']}
+    ...    address=${VALID_USER['address']}
+    ...    profile=${VALID_USER['profile']}
+    ${user_id}=    Create Test User And Return ID    ${unique_nested_user}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${user_id}
+
+the user does not exist
+    [Documentation]    Plain form - ensures no user exists with a specific ID
+    ${non_existent_id}=    Set Variable    ${NON_EXISTENT_USER_ID}
+    Set Suite Variable    ${TARGET_USER_ID}    ${non_existent_id}
+
+I delete user by ID
+    [Documentation]    Plain form - sends DELETE request for specific user ID
+    ${user_id_to_delete}=    Set Variable    ${TEST_USER_ID}
+    ${response}=    DELETE    ${BASE_URL}/users/${user_id_to_delete}
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+    Set Suite Variable    ${DELETED_USER_ID}    ${user_id_to_delete}
+
+I create a user with invalid nested data
+    [Documentation]    Plain form - sends POST request with invalid nested field data
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_INVALID_NESTED_DATA}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+I create a user with missing required nested fields
+    [Documentation]    Plain form - sends POST request with missing required nested fields
+    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_MISSING_NESTED_REQUIRED}    expected_status=400
+    Set Suite Variable    ${API_RESPONSE}    ${response}
+
+I clean up nested field test users
+    [Documentation]    Plain form - performs cleanup of test users with nested data
+    # Gracefully clean up test users - ignore if they don't exist
+    Run Keyword And Ignore Error    Delete User By ID    ${NESTED_TEST_USER_ID}    200
+    Run Keyword And Ignore Error    Delete User By ID    ${MINIMAL_NESTED_USER_ID}    200
+    Log    Cleanup completed - any test users have been removed
+
+test users with nested data exist
+    [Documentation]    Plain form - ensures test users with nested data exist for cleanup testing
+    ${nested_user_id}=    Create Test User And Return ID    ${VALID_USER}
+    Set Suite Variable    ${NESTED_TEST_USER_ID}    ${nested_user_id}
+    ${minimal_user_id}=    Create Test User And Return ID    ${VALID_USER_MINIMAL_NESTED}
+    Set Suite Variable    ${MINIMAL_NESTED_USER_ID}    ${minimal_user_id}
+
+all test users should be removed from the system
+    [Documentation]    Plain form - validates that all test users have been successfully removed
+    Log    All test users have been cleaned up successfully

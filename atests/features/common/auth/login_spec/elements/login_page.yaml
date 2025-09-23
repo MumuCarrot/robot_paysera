@@ -34,3 +34,17 @@ ACCCESS_ERROR_INVENTORY: "Epic sadface: You can only access '/inventory.html' wh
 # ERROR UI ELEMENTS
 # Visual indicators for login validation errors
 ERROR_IMG: svg[role=img].error_icon:first-of-type  # Error icon selector (appears next to invalid fields)
+
+NEGATIVE_TESTS:
+  WRONG_USER_PASSWORD:
+    username: abcde
+    password: 1234567
+  EMPTY_USERNAME:
+    username: ""
+    password: 1234567
+  EMPTY_PASSWORD:
+    username: standard_user
+    password: ""
+  EMPTY_BOTH:
+    username: ""
+    password: ""

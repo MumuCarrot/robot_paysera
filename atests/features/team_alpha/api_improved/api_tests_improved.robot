@@ -3,6 +3,7 @@ Library    RequestsLibrary
 Library    Collections
 
 Resource    ../../common/api/keywords/api_tests_keywords.robot
+Resource    ../team_alpha_variables.robot    # Team Alpha specific variables and configuration
 
 Suite Setup    Create Session    api    http://localhost:3000
 Suite Teardown    Delete All Sessions
@@ -24,7 +25,10 @@ User CRUD Operations - Complete Flow
     # Read user  
     ${get_response}=    Get User By ID    ${user_id}
     ${user_data}=    Validate User Response Structure    ${get_response}
-    Should Be Equal    ${user_data['data']['name']}    Test User
+    # Get the actual created user name from response and verify it contains expected pattern
+    ${created_name}=    Set Variable    ${user_data['data']['name']}
+    Should Contain    ${created_name}    Valid Test User
+    Log    Verified user name: ${created_name}
     
     # Update user
     &{updated_data}=    Create Dictionary    name=Updated User    email=updated@test.com    age=${35}

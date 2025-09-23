@@ -1,7 +1,8 @@
 *** Settings ***
-# Import shopping cart specific keywords and base test functionality
+# Import shopping cart specific keywords, team variables, and base test functionality
 Resource        keywords/shopping_cart_keywords.robot  # Shopping cart specific keywords and actions
 Resource        ../../../support/baseTests.robot       # Base test setup and common functionality
+Resource        ../team_beta_global_variables.robot    # Team Beta specific variables and configuration
 
 # Test suite configuration
 Suite Setup       Set Log Level    ${LOG_LEVEL}         # Set logging level for debugging

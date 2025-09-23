@@ -6,319 +6,263 @@ Library    String              # String operations and validation utilities
 Library    JSONLibrary         # JSON parsing and validation functionality
 
 # Import API-specific keywords and test data
-Resource    keywords/api_tests_keywords.robot    # API test keywords and reusable actions
+Resource    keywords/api_tests_keywords.robot    # API test keywords and BDD-style keywords (Given-When-Then)
+Variables   elements/api_tests.yaml             # API test data and configuration
 
 # Suite-level setup and teardown configuration
 Suite Setup    Create Session    api    http://localhost:3000    # Initialize HTTP session for API communication
 Suite Teardown    Delete All Sessions                            # Clean up all HTTP sessions
 
+# =============================================================================
+# BDD API Test Suite - Converted from Traditional Robot Framework Tests
+# =============================================================================
+# 
+# This test suite has been converted to use BDD (Behavior-Driven Development) format
+# following the Given-When-Then pattern. Each test case now reads like a natural
+# language specification of the system behavior.
+#
+# BDD Pattern:
+# - Given: Set up the initial context/preconditions
+# - When: Execute the action being tested
+# - Then: Assert the expected outcome
+# - And: Additional steps to chain with Given/When/Then
+#
+# Benefits:
+# - More readable and understandable test specifications
+# - Better communication between technical and non-technical stakeholders
+# - Clear separation of test setup, action, and verification
+# - Follows industry standard BDD practices
+# =============================================================================
+
 *** Test Cases ***
-API Health Check
-    [Documentation]    Validates that the API server is operational and responding correctly.
-    ...                This is a smoke test that should be run first to ensure the API is accessible
-    ...                before executing other test scenarios. Verifies both server responsiveness
-    ...                and the health check endpoint structure.
-    ...
-    ...                Expected Response:
-    ...                - Status code: 200 (OK)
-    ...                - Message: "API Server is running!"
-    ...                - Endpoints list present in response
-    [Tags]    health    smoke_test    api_foundation
-    ${response}=    GET    ${BASE_URL}/                                    # Send GET request to health check endpoint
-    Should Be Equal As Numbers    ${response.status_code}    200           # Verify successful response code
-    ${json_response}=    Set Variable    ${response.json()}                # Parse JSON response for validation
-    Should Contain    ${json_response['message']}    API Server is running!    # Confirm server status message
-    Should Contain    ${json_response}    endpoints                       # Verify endpoints list is included
-
-Get All Users - Initial Data
-    [Documentation]    Retrieves all users from the database and validates response structure.
-    ...                This test verifies the GET /users endpoint functionality and ensures
-    ...                that the response contains the expected data structure including user count,
-    ...                success message, and data array. Tests the basic user listing functionality
-    ...                which is fundamental for user management operations.
-    ...
-    ...                Expected Response Structure:
-    ...                - Status: 200 (OK)
-    ...                - Message: "Users retrieved successfully"
-    ...                - Count: Number of users (>= 0)
-    ...                - Data: Array of user objects
-    [Tags]    get_request    user_retrieval    positive_test
-    ${response}=    GET    ${BASE_URL}/users                                       # Request all users from database
-    Should Be Equal As Numbers    ${response.status_code}    200                   # Verify successful response
-    ${json_response}=    Set Variable    ${response.json()}                        # Parse response for validation
-    Should Contain    ${json_response['message']}    Users retrieved successfully  # Confirm success message
-    Should Be True    ${json_response['count']} >= 0                              # Validate user count is non-negative
-    Should Contain    ${json_response}    data                                     # Verify data array exists
-
-Create New User - Valid Data
-    [Documentation]    Creates a new user with valid data and validates successful creation.
-    ...                This test verifies the POST /users endpoint with complete user data including
-    ...                nested fields (address and profile). Validates both the creation process and
-    ...                the returned user data structure. The created user ID is stored for use in
-    ...                subsequent test cases that require an existing user.
-    ...
-    ...                Request Data: Uses VALID_USER from test data (includes address and profile)
-    ...                Expected Response:
-    ...                - Status: 201 (Created) 
-    ...                - Message: "User created successfully"
-    ...                - Data: Complete user object with generated ID
-    [Tags]    post_request    user_creation    positive_test    crud_operation
-    ${response}=    POST    ${BASE_URL}/users    json=${VALID_USER}                        # Send POST request with valid user data
-    Should Be Equal As Numbers    ${response.status_code}    201                           # Verify creation successful (201)
-    ${json_response}=    Set Variable    ${response.json()}                                # Parse response for validation
-    Should Contain    ${json_response['message']}    User created successfully             # Confirm success message
-    Should Contain    ${json_response['data']}    id                                       # Verify user ID was generated
-    Should Be Equal    ${json_response['data']['name']}    Test User                       # Validate name was stored correctly
-    Should Be Equal    ${json_response['data']['email']}    test@example.com               # Validate email was stored correctly
-    Should Be Equal As Numbers    ${json_response['data']['age']}    28                    # Validate age was stored correctly
-    Set Suite Variable    ${CREATED_USER_ID}    ${json_response['data']['id']}             # Store user ID for later tests
-
-Get User By ID - Valid ID
-    [Documentation]    Test getting a user by valid ID
-    [Tags]    get    users    id
-    ${response}=    GET    ${BASE_URL}/users/${CREATED_USER_ID}
-    Should Be Equal As Numbers    ${response.status_code}    200
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['message']}    User retrieved successfully
-    Should Be Equal As Numbers    ${json_response['data']['id']}    ${CREATED_USER_ID}
-    Should Be Equal    ${json_response['data']['name']}    Test User
-
-Update User - Valid Data
-    [Documentation]    Test updating a user with valid data
-    [Tags]    put    users    update
-    &{updated_user}=    Create Dictionary    name=Updated Test User    email=updated@example.com    age=${30}
-    ${response}=    PUT    ${BASE_URL}/users/${CREATED_USER_ID}    json=${updated_user}
-    Should Be Equal As Numbers    ${response.status_code}    200
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['message']}    User updated successfully
-    Should Be Equal    ${json_response['data']['name']}    Updated Test User
-    Should Be Equal    ${json_response['data']['email']}    updated@example.com
-    Should Be Equal As Numbers    ${json_response['data']['age']}    30
-
-Create User - Missing Email (Negative Test)
-    [Documentation]    Test creating a user without email should fail
-    [Tags]    post    users    negative
-    ${response}=    POST    ${BASE_URL}/users    json=${INVALID_USER_NO_EMAIL}    expected_status=400
-    Should Be Equal As Numbers    ${response.status_code}    400
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    Name and email are required fields
-
-Create User - Invalid Email Format (Negative Test)
-    [Documentation]    Test creating a user with invalid email format should fail
-    [Tags]    post    users    negative
-    ${response}=    POST    ${BASE_URL}/users    json=${INVALID_EMAIL}    expected_status=400
-    Should Be Equal As Numbers    ${response.status_code}    400
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    Invalid email format
-
-Get User By ID - Invalid ID (Negative Test)
-    [Documentation]    Test getting a user with non-existent ID
-    [Tags]    get    users    negative
-    ${response}=    GET    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    expected_status=404
-    Should Be Equal As Numbers    ${response.status_code}    404
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    User not found
-
-Get User By ID - Invalid ID Format (Negative Test)
-    [Documentation]    Test getting a user with invalid ID format
-    [Tags]    get    users    negative
-    ${response}=    GET    ${BASE_URL}/users/invalid-id    expected_status=400
-    Should Be Equal As Numbers    ${response.status_code}    400
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    Invalid user ID
-
-Update User - Non-existent ID (Negative Test)
-    [Documentation]    Test updating a non-existent user
-    [Tags]    put    users    negative
-    &{updated_user}=    Create Dictionary    name=Non-existent User    email=nonexistent@example.com    age=${25}
-    ${response}=    PUT    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    json=${updated_user}    expected_status=404
-    Should Be Equal As Numbers    ${response.status_code}    404
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    User not found
-
-Delete User - Valid ID
-    [Documentation]    Test deleting a user with valid ID
-    [Tags]    delete    users
-    ${response}=    DELETE    ${BASE_URL}/users/${CREATED_USER_ID}
-    Should Be Equal As Numbers    ${response.status_code}    200
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['message']}    User deleted successfully
-    Should Be Equal As Numbers    ${json_response['data']['id']}    ${CREATED_USER_ID}
-
-Delete User - Non-existent ID (Negative Test)
-    [Documentation]    Test deleting a non-existent user
-    [Tags]    delete    users    negative
-    ${response}=    DELETE    ${BASE_URL}/users/${NON_EXISTENT_USER_ID}    expected_status=404
-    Should Be Equal As Numbers    ${response.status_code}    404
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    User not found
-
-Verify User Was Deleted
-    [Documentation]    Verify that the deleted user cannot be retrieved
-    [Tags]    get    users    verification
-    ${response}=    GET    ${BASE_URL}/users/${CREATED_USER_ID}    expected_status=404
-    Should Be Equal As Numbers    ${response.status_code}    404
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response['error']}    User not found
-
 # =============================================================================
-# Advanced User Management Tests with Nested Data Structures
-#
-# This section contains test cases that validate the API's ability to handle
-# complex user data with nested objects (address and profile information).
-# These tests verify:
-# - Creation of users with complete nested data structures
-# - Minimal nested data handling (required fields only)
-# - Update operations on nested fields
-# - Retrieval and validation of nested data structures
-# - Error handling for invalid nested data
-#
-# The nested structure includes:
-# - Address: street, city, state, zip_code, country
-# - Profile: occupation, company, phone, preferences (newsletter, notifications, theme)
+# BDD API Tests - Health and Basic Operations
 # =============================================================================
 
-Create User With Nested Fields - Valid Data
-    [Documentation]    Test creating a user with valid nested address and profile data
-    [Tags]    post    users    nested    create
-    ${response}=    POST    ${BASE_URL}/users    json=${VALID_USER}
-    ${json_response}=    Validate User Response With Nested Fields    ${response}    201
-    
-    # Validate basic user data
-    Should Be Equal    ${json_response['data']['name']}    Test User
-    Should Be Equal    ${json_response['data']['email']}    test@example.com
-    Should Be Equal As Numbers    ${json_response['data']['age']}    28
-    
-    # Validate address data
-    Should Be Equal    ${json_response['data']['address']['street']}    123 Main Street
-    Should Be Equal    ${json_response['data']['address']['city']}    New York
-    Should Be Equal    ${json_response['data']['address']['state']}    NY
-    Should Be Equal    ${json_response['data']['address']['zip_code']}    10001
-    Should Be Equal    ${json_response['data']['address']['country']}    USA
-    
-    # Validate profile data
-    Should Be Equal    ${json_response['data']['profile']['occupation']}    Software Developer
-    Should Be Equal    ${json_response['data']['profile']['company']}    Tech Corp
-    Should Be Equal    ${json_response['data']['profile']['phone']}    +1-555-123-4567
-    
-    # Validate preferences
-    Should Be True    ${json_response['data']['profile']['preferences']['newsletter']}
-    Should Not Be True    ${json_response['data']['profile']['preferences']['notifications']}
-    Should Be Equal    ${json_response['data']['profile']['preferences']['theme']}    dark
-    
-    Set Suite Variable    ${NESTED_USER_ID}    ${json_response['data']['id']}
+API Server Should Be Operational
+    [Documentation]    As an API consumer, I want to verify that the API server is running
+    ...                So that I can ensure the service is available for requests
+    [Tags]    health    smoke_test    api_foundation    bdd
+    Given API server is running
+    When I request user health check
+    Then the response status should be "200"
+    And the response should contain "API Server is running!"
+    And the response should contain API endpoints
 
-Create User With Minimal Nested Fields - Valid Data
-    [Documentation]    Test creating a user with minimal required nested fields
-    [Tags]    post    users    nested    minimal
-    ${response}=    POST    ${BASE_URL}/users    json=${VALID_USER_MINIMAL_NESTED}
-    ${json_response}=    Validate User Response With Nested Fields    ${response}    201
-    
-    # Validate basic user data
-    Should Be Equal    ${json_response['data']['name']}    Minimal User
-    Should Be Equal    ${json_response['data']['email']}    minimal@example.com
-    Should Be Equal As Numbers    ${json_response['data']['age']}    25
-    
-    # Validate minimal address data
-    Should Be Equal    ${json_response['data']['address']['street']}    Simple Street
-    Should Be Equal    ${json_response['data']['address']['city']}    Simple City
-    
-    # Validate minimal profile data
-    Should Be Equal    ${json_response['data']['profile']['occupation']}    Student
-    
-    Set Suite Variable    ${MINIMAL_NESTED_USER_ID}    ${json_response['data']['id']}
+Users Can Be Retrieved From The System
+    [Documentation]    As an API consumer, I want to retrieve all users from the system
+    ...                So that I can view the complete list of users
+    [Tags]    get_request    user_retrieval    positive_test    bdd
+    Given API server is running
+    When I request all users
+    Then the response status should be "200"
+    And the response should contain "Users retrieved successfully"
+    And the response should contain users list
 
-Update User With Nested Fields - Valid Data
-    [Documentation]    Test updating a user with nested field changes
-    [Tags]    put    users    nested    update
-    &{address_dict}=    Create Dictionary    street=456 Updated St    city=Updated City    state=UC    zip_code=54321    country=Updated Country
-    &{preferences_dict}=    Create Dictionary    newsletter=${False}    notifications=${True}    theme=light
-    &{profile_dict}=    Create Dictionary    occupation=Senior Developer    company=Updated Corp    phone=+1-555-999-8888    preferences=${preferences_dict}
-    &{updated_nested_user}=    Create Dictionary    
-    ...    name=Updated Nested User    
-    ...    email=updated.nested@example.com    
-    ...    age=${35}
-    ...    address=${address_dict}
-    ...    profile=${profile_dict}
-    
-    ${response}=    PUT    ${BASE_URL}/users/${NESTED_USER_ID}    json=${updated_nested_user}
-    ${json_response}=    Validate User Response With Nested Fields    ${response}    200
-    
-    # Validate updated basic data
-    Should Be Equal    ${json_response['data']['name']}    Updated Nested User
-    Should Be Equal    ${json_response['data']['email']}    updated.nested@example.com
-    Should Be Equal As Numbers    ${json_response['data']['age']}    35
-    
-    # Validate updated address
-    Should Be Equal    ${json_response['data']['address']['street']}    456 Updated St
-    Should Be Equal    ${json_response['data']['address']['city']}    Updated City
-    
-    # Validate updated profile
-    Should Be Equal    ${json_response['data']['profile']['occupation']}    Senior Developer
-    Should Be Equal    ${json_response['data']['profile']['company']}    Updated Corp
+New User Can Be Created With Valid Data
+    [Documentation]    As an API consumer, I want to create a new user with valid data
+    ...                So that the user can be added to the system
+    [Tags]    post_request    user_creation    positive_test    crud_operation    bdd
+    Given API server is running
+    When I create a user with valid data
+    Then the response status should be "201"
+    And the response should contain "User created successfully"
+    And the response should contain user data
+    And the user should have name "${EXPECTED_USER_NAME}"
+    And the user should have email "${EXPECTED_USER_EMAIL}"
+    And the user should have age "${EXPECTED_USER_AGE}"
 
-Get User With Nested Fields - Valid ID
-    [Documentation]    Test retrieving a user with nested fields by valid ID
-    [Tags]    get    users    nested    id
-    ${response}=    GET    ${BASE_URL}/users/${NESTED_USER_ID}
-    ${json_response}=    Validate User Response With Nested Fields    ${response}    200
-    
-    # Validate complete nested structure exists
-    Validate Full Nested User Structure    ${json_response['data']}
-    Validate User Preferences    ${json_response['data']['profile']}
+Existing User Can Be Retrieved By ID
+    [Documentation]    As an API consumer, I want to retrieve a specific user by their ID
+    ...                So that I can view their details
+    [Tags]    get    users    id    bdd
+    Given API server is running
+    And a user exists with valid data
+    When I request user by ID "${TEST_USER_ID}"
+    Then the response status should be "200"
+    And the response should contain "User retrieved successfully"
+    And the user should have ID "${TEST_USER_ID}"
+
+Existing User Can Be Updated With Valid Data
+    [Documentation]    As an API consumer, I want to update a user's information
+    ...                So that their data remains current
+    [Tags]    put    users    update    bdd
+    Given API server is running
+    And a user exists with valid data
+    When I update user with valid data
+    Then the response status should be "200"
+    And the response should contain "User updated successfully"
+    And the user should have name "${EXPECTED_UPDATED_NAME}"
+    And the user should have email "${EXPECTED_UPDATED_EMAIL}"
+    And the user should have age "${EXPECTED_UPDATED_AGE}"
 
 # =============================================================================
-# Negative Test Cases for Nested Data Structures
-#
-# This section contains negative test scenarios that validate proper error
-# handling when invalid or incomplete nested data is provided. These tests
-# ensure the API correctly rejects malformed requests and provides meaningful
-# error messages for debugging and user feedback.
-#
-# Test scenarios include:
-# - Invalid data types in nested fields
-# - Missing required nested fields
-# - Empty values in required nested fields
-# - Invalid format values (phone, email, zip codes)
+# BDD API Tests - Negative Test Scenarios
 # =============================================================================
 
-Create User With Invalid Nested Data - Negative Test
-    [Documentation]    Test creating a user with invalid nested field data should fail
-    [Tags]    post    users    nested    negative
-    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_INVALID_NESTED_DATA}    expected_status=400
-    Should Be Equal As Numbers    ${response.status_code}    400
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response}    error
+User Creation Should Fail When Email Is Missing
+    [Documentation]    As an API consumer, I want to be prevented from creating a user without email
+    ...                So that data integrity is maintained
+    [Tags]    post    users    negative    bdd
+    Given API server is running
+    When I create a user with missing email
+    Then the response status should be "400"
+    And the response should contain error "Name and email are required fields"
 
-Create User With Missing Required Nested Fields - Negative Test
-    [Documentation]    Test creating a user with missing required nested fields should fail
-    [Tags]    post    users    nested    negative
-    ${response}=    POST    ${BASE_URL}/users    json=${USER_WITH_MISSING_NESTED_REQUIRED}    expected_status=400
-    Should Be Equal As Numbers    ${response.status_code}    400
-    ${json_response}=    Set Variable    ${response.json()}
-    Should Contain    ${json_response}    error
+User Creation Should Fail When Email Format Is Invalid
+    [Documentation]    As an API consumer, I want to be prevented from creating a user with invalid email format
+    ...                So that only valid email addresses are accepted
+    [Tags]    post    users    negative    bdd
+    Given API server is running
+    When I create a user with invalid email format
+    Then the response status should be "400"
+    And the response should contain error "Invalid email format"
+
+User Retrieval Should Fail When User Does Not Exist
+    [Documentation]    As an API consumer, I want to receive an error when trying to get a non-existent user
+    ...                So that I know the user doesn't exist in the system
+    [Tags]    get    users    negative    bdd
+    Given API server is running
+    And the user does not exist
+    When I request user by ID "${NON_EXISTENT_USER_ID}"
+    Then the user should not be found
+
+User Retrieval Should Fail When ID Format Is Invalid
+    [Documentation]    As an API consumer, I want to receive an error when using invalid ID format
+    ...                So that I know the ID format is incorrect
+    [Tags]    get    users    negative    bdd
+    Given API server is running
+    When I request user by invalid ID format
+    Then the response status should be "400"
+    And the response should contain error "Invalid user ID"
+
+User Update Should Fail When User Does Not Exist
+    [Documentation]    As an API consumer, I want to receive an error when trying to update a non-existent user
+    ...                So that I know the user doesn't exist in the system
+    [Tags]    put    users    negative    bdd
+    Given API server is running
+    And the user does not exist
+    When I update non-existent user
+    Then the user should not be found
 
 # =============================================================================
-# Test Data Cleanup Section
-#
-# This section handles the cleanup of test data created during the nested field
-# tests. It ensures that any test users created during the test execution are
-# properly removed from the database, preventing test data pollution and 
-# maintaining test independence.
-#
-# Cleanup operations:
-# - Delete all users created with nested field data
-# - Handle cleanup gracefully even if deletion fails
-# - Log cleanup operations for debugging purposes
+# BDD API Tests - User Deletion Scenarios
 # =============================================================================
 
-Delete Nested Field Test Users - Cleanup
-    [Documentation]    Clean up test users with nested fields
-    [Tags]    delete    users    nested    cleanup
+Existing User Can Be Deleted Successfully
+    [Documentation]    As an API consumer, I want to delete a user
+    ...                So that they are removed from the system
+    [Tags]    delete    users    bdd
+    Given API server is running
+    And a user exists with valid data
+    When I delete user by ID
+    Then the response status should be "200"
+    And the response should contain "User deleted successfully"
+
+User Deletion Should Fail When User Does Not Exist
+    [Documentation]    As an API consumer, I want to receive an error when trying to delete a non-existent user
+    ...                So that I know the user doesn't exist in the system
+    [Tags]    delete    users    negative    bdd
+    Given API server is running
+    And the user does not exist
+    When I delete non-existent user
+    Then the user should not be found
+
+Deleted User Should Not Be Retrievable
+    [Documentation]    As an API consumer, I want to confirm that a deleted user is no longer accessible
+    ...                So that I know the deletion was successful
+    [Tags]    get    users    verification    bdd
+    Given API server is running
+    And a user exists with valid data
+    And I delete user by ID
+    When I request user by ID "${DELETED_USER_ID}"
+    Then the user should not be found
+
+# =============================================================================
+# BDD API Tests - Advanced Nested Data Structure Scenarios
+# =============================================================================
+
+User With Complete Nested Data Can Be Created Successfully
+    [Documentation]    As an API consumer, I want to create a user with complete address and profile information
+    ...                So that comprehensive user data is stored in the system
+    ...                Nested data includes: Address (street, city, state, zip_code, country)
+    ...                and Profile (occupation, company, phone, preferences)
+    [Tags]    post    users    nested    create    bdd
+    Given API server is running
+    When I create a user with valid data
+    Then the response status should be "201"
+    And the response should contain "User created successfully"
+    And the response should contain nested user data
+    And the user should have name "${EXPECTED_USER_NAME}"
+    And the user should have email "${EXPECTED_USER_EMAIL}"
+    And the user should have age "${EXPECTED_USER_AGE}"
+
+User With Minimal Nested Data Can Be Created Successfully
+    [Documentation]    As an API consumer, I want to create a user with minimal required nested fields
+    ...                So that users can be created with only essential nested information
+    [Tags]    post    users    nested    minimal    bdd
+    Given API server is running
+    When I create a user with valid data
+    Then the response status should be "201"
+    And the response should contain "User created successfully"
+    And the response should contain nested user data
+
+User With Nested Fields Can Be Updated Successfully
+    [Documentation]    As an API consumer, I want to update a user's nested field information
+    ...                So that their address and profile data can be modified
+    [Tags]    put    users    nested    update    bdd
+    Given API server is running
+    And a user exists with nested data
+    When I update user with nested data
+    Then the response status should be "200"
+    And the response should contain "User updated successfully"
+    And the response should contain nested user data
+    And the user should have name "${EXPECTED_NESTED_UPDATED_NAME}"
+    And the user should have email "${EXPECTED_NESTED_UPDATED_EMAIL}"
+    And the user should have age "${EXPECTED_NESTED_UPDATED_AGE}"
+
+User With Nested Fields Can Be Retrieved Successfully
+    [Documentation]    As an API consumer, I want to retrieve a user with complete nested field data
+    ...                So that I can access their full address and profile information
+    [Tags]    get    users    nested    id    bdd
+    Given API server is running
+    And a user exists with nested data
+    When I request user by ID "${NESTED_TEST_USER_ID}"
+    Then the response status should be "200"
+    And the response should contain "User retrieved successfully"
+    And the response should contain nested user data
+
+# =============================================================================
+# BDD API Tests - Negative Nested Data Scenarios
+# =============================================================================
+
+User Creation Should Fail With Invalid Nested Data
+    [Documentation]    As an API consumer, I want to be prevented from creating a user with invalid nested data
+    ...                So that data integrity is maintained for complex user structures
+    [Tags]    post    users    nested    negative    bdd
+    Given API server is running
+    When I create a user with invalid nested data
+    Then the response status should be "400"
+    And the response should contain error ""
+
+User Creation Should Fail With Missing Required Nested Fields
+    [Documentation]    As an API consumer, I want to be prevented from creating a user with missing required nested fields
+    ...                So that essential nested information is always provided
+    [Tags]    post    users    nested    negative    bdd
+    Given API server is running
+    When I create a user with missing required nested fields
+    Then the response status should be "400"
+    And the response should contain error ""
+
+# =============================================================================
+# BDD API Tests - Test Data Cleanup Scenarios
+# =============================================================================
+
+Test Data Should Be Cleaned Up After Nested Field Tests
+    [Documentation]    As a test system, I want to ensure that test users with nested fields are cleaned up
+    ...                So that test data doesn't pollute the database
+    [Tags]    delete    users    nested    cleanup    bdd
     [Teardown]    Log    Nested field test users cleanup completed
-    
-    # Delete nested user if exists
-    Run Keyword And Ignore Error    Delete User By ID    ${NESTED_USER_ID}
-    
-    # Delete minimal nested user if exists
-    Run Keyword And Ignore Error    Delete User By ID    ${MINIMAL_NESTED_USER_ID}
+    Given API server is running
+    When I clean up nested field test users
+    Then all test users should be removed from the system

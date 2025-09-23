@@ -1,7 +1,8 @@
 *** Settings ***
-# Import burger menu specific keywords and base test functionality
+# Import burger menu specific keywords, team variables, and base test functionality
 Resource        keywords/burger_menu_keywords.robot   # Burger menu specific keywords and actions
 Resource        ../../../support/baseTests.robot      # Base test setup and common functionality
+Resource        ../team_alpha_variables.robot         # Team Alpha specific variables and configuration
 
 # Test suite configuration
 Suite Setup       Set Log Level    ${LOG_LEVEL}                      # Set logging level for debugging
