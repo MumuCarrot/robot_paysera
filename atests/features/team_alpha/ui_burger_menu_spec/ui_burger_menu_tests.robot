@@ -1,6 +1,6 @@
 *** Settings ***
 # Import burger menu specific keywords, team variables, and base test functionality
-Resource        keywords/burger_menu_keywords.robot   # Burger menu specific keywords and actions
+Resource        keywords/ui_burger_menu_keywords.robot   # Burger menu specific keywords and actions
 Resource        ../../../support/baseTests.robot      # Base test setup and common functionality
 Resource        ../team_alpha_variables.robot         # Team Alpha specific variables and configuration
 

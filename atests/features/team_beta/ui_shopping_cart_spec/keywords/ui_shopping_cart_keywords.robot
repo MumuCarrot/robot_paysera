@@ -1,7 +1,7 @@
 *** Settings ***
 # Import base test functionality and shopping cart page elements
 Resource     ../../../../support/baseTests.robot    # Common test setup and utilities
-Variables    ../elements/shopping_cart_page.yaml    # Shopping cart element locators and test data
+Variables    ../elements/ui_shopping_cart_page.yaml    # Shopping cart element locators and test data
 
 # =============================================================================
 # Shopping Cart Keywords Library

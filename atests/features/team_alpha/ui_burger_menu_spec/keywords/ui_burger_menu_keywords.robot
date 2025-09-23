@@ -6,7 +6,7 @@ Library      BuiltIn     # Robot Framework built-in library
 # Import base test functionality, team variables, and burger menu page elements
 Resource     ../../../../support/baseTests.robot    # Common test setup and utilities
 Resource     ../../team_alpha_variables.robot       # Team Alpha specific variables and configuration
-Variables    ../elements/burger_menu_page.yaml      # Burger menu element locators and test data
+Variables    ../elements/ui_burger_menu_page.yaml      # Burger menu element locators and test data
 
 # =============================================================================
 # Burger Menu Keywords Library

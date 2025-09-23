@@ -476,7 +476,7 @@ robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/
 robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/api_improved/
 
 # Run burger menu tests only
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/burger_menu_spec/
+robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/ui_burger_menu_spec/
 
 # Run specific burger menu scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_open_close ./
@@ -496,7 +496,7 @@ robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/
 robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports atests/features/team_beta/
 
 # Run shopping cart tests only with debug configuration
-robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/team_beta/shopping_cart_spec/
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/team_beta/ui_shopping_cart_spec/
 
 # Run specific shopping cart scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_ok ./
@@ -713,7 +713,7 @@ pabot --processes 4 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports ./
 robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d debug_reports ./
 
 # Team-specific testing with overrides
-robot -v HEADLESS_FLAG:false -v LOG_LEVEL:INFO -d my_reports atests/features/team_alpha/burger_menu_spec/
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:INFO -d my_reports atests/features/team_alpha/ui_burger_menu_spec/
 ```
 
 #### Cross-Browser Testing with Overrides
