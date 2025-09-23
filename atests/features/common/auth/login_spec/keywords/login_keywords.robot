@@ -123,6 +123,7 @@ Run all negative login tests
         ${CASE}=    Get From Dictionary    ${NEGATIVE_TESTS}    ${TEST_NAME}
         Log    Running negative test case: ${TEST_NAME}
         Run Negative Login Test    ${CASE['username']}    ${CASE['password']}
+        Steps to Close Browser
     END
 
 All negative login tests should be rejected

@@ -58,34 +58,26 @@ Expect Unique Email Constraint Violation
     [Arguments]    ${name}    ${email}
     Run Keyword And Expect Error    *UNIQUE*    Execute Sql String    INSERT INTO users (name, email) VALUES ('${name}', '${email}')
 
-Given Database Schema Is Reset
+Database Schema Is Reset
     Reset Users Table
 
-When Sample Users Are Seeded
+Sample Users Are Seeded
     [Arguments]    ${count}=3
     Insert Sample Users    ${count}
 
-And Sample Users Are Seeded
-    [Arguments]    ${count}=3
-    When Sample Users Are Seeded    ${count}
-
-Then Users Count Should Equal
+Users Count Should Equal
     [Arguments]    ${expected}
     Get Users Count Should Be    ${expected}
 
-When User Is Created With Details
+User Is Created With Details
     [Arguments]    ${name}    ${email}    ${age}=
     Create User Directly    ${name}    ${email}    ${age}
 
-Given User Exists With Details
+User Exists With Details
     [Arguments]    ${name}    ${email}    ${age}=
     When User Is Created With Details    ${name}    ${email}    ${age}
 
-And User Exists With Details
-    [Arguments]    ${name}    ${email}    ${age}=
-    When User Is Created With Details    ${name}    ${email}    ${age}
-
-Then User With Email Should Have Details
+User With Email Should Have Details Validation
     [Arguments]    ${email}    ${expected_name}    ${expected_age}=
     ${rows}=    Get User By Email    ${email}
     Length Should Be    ${rows}    1
@@ -93,28 +85,28 @@ Then User With Email Should Have Details
     Should Be Equal    ${rows[0][2]}    ${email}
     Run Keyword If    '${expected_age}'!=''    Should Be Equal As Integers    ${rows[0][3]}    ${expected_age}
 
-And User With Email Should Have Details
+User With Email Should Have Details
     [Arguments]    ${email}    ${expected_name}    ${expected_age}=
-    Then User With Email Should Have Details    ${email}    ${expected_name}    ${expected_age}
+    Then User With Email Should Have Details Validation    ${email}    ${expected_name}    ${expected_age}
 
-When Creating User With Duplicate Email Should Fail
+Creating User With Duplicate Email Should Fail
     [Arguments]    ${name}    ${email}
     Expect Unique Email Constraint Violation    ${name}    ${email}
 
-When User Email Is Updated From To
+User Email Is Updated From To
     [Arguments]    ${current_email}    ${new_email}
     ${rows}=    Get User By Email    ${current_email}
     Length Should Be    ${rows}    1
     ${id}=    Set Variable    ${rows[0][0]}
     Update User Email By Id    ${id}    ${new_email}
 
-When User With Email Is Deleted
+User With Email Is Deleted
     [Arguments]    ${email}
     ${rows}=    Get User By Email    ${email}
     Length Should Be    ${rows}    1
     Delete User By Id    ${rows[0][0]}
 
-Then User With Email Should Not Exist
+User With Email Should Not Exist
     [Arguments]    ${email}
     ${rows}=    Get User By Email    ${email}
     Length Should Be    ${rows}    0

@@ -34,7 +34,7 @@ Scenario: User email can be updated and user removed
     Given Database Schema Is Reset
     And User Exists With Details    Carol User    carol@example.com    22
     When User Email Is Updated From To    carol@example.com    carol.updated@example.com
-    Then User With Email Should Have Details    carol.updated@example.com    Carol User
+    Then User With Email Should Have Details Validation    carol.updated@example.com    Carol User
     When User With Email Is Deleted    carol.updated@example.com
     Then User With Email Should Not Exist    carol.updated@example.com
 
