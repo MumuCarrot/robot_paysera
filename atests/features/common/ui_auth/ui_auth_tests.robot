@@ -4,9 +4,9 @@ Library           Browser                         # Playwright browser automatio
 Library           Collections                     # Python collections library for data operations
 
 # Import login-specific keywords and base functionality
-Resource          keywords/login_keywords.robot   # Login-specific keywords
-Resource          ../../../../support/baseTests.robot  # Base test setup and common functionality
-Resource          ../../common_global_variables.robot  # Common global variables
+Resource          keywords/ui_auth_keywords.robot   # Login-specific keywords
+Resource          ../../../support/baseTests.robot  # Base test setup and common functionality
+Resource          ../common_variables.robot  # Common global variables
 
 # Configuration for the entire test suite
 Suite Setup       Set Log Level    DEBUG           # Set logging level for debugging

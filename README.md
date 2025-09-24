@@ -470,13 +470,13 @@ This test project is designed to support **multiple development teams** working 
 #### Team Alpha Commands (API Improved + Burger Menu)
 ```bash
 # Run all Team Alpha tests (API improved + burger menu)
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/
+robot --loglevel DEBUG:INFO -d my_reports atests/features/tribe_alpha/
 
 # Run API improved tests only
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/api_improved/
+robot --loglevel DEBUG:INFO -d my_reports atests/features/tribe_alpha/api_improved/
 
 # Run burger menu tests only
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_alpha/ui_burger_menu_spec/
+robot --loglevel DEBUG:INFO -d my_reports atests/features/tribe_alpha/ui_burger_menu_spec/
 
 # Run specific burger menu scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_open_close ./
@@ -484,26 +484,26 @@ robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_navigation ./
 robot --loglevel DEBUG:INFO -d my_reports -i burger_menu_overlay ./
 
 # Run Team Alpha tests in parallel
-pabot --processes 2 -d my_reports atests/features/team_alpha/
+pabot --processes 2 -d my_reports atests/features/tribe_alpha/
 ```
 
 #### Team Beta Commands (Shopping Cart)
 ```bash
 # Run all Team Beta tests (shopping cart)
-robot --loglevel DEBUG:INFO -d my_reports atests/features/team_beta/
+robot --loglevel DEBUG:INFO -d my_reports atests/features/tribe_beta/
 
 # Run with fast execution (headless + error-only logging)
-robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports atests/features/team_beta/
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports atests/features/tribe_beta/
 
 # Run shopping cart tests only with debug configuration
-robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/team_beta/ui_shopping_cart_spec/
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/tribe_beta/ui_shopping_cart_spec/
 
 # Run specific shopping cart scenarios
 robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_ok ./
 robot --loglevel DEBUG:INFO -d my_reports -i shopping_cart_remove ./
 
 # Run Team Beta tests in parallel with variable overrides
-pabot --processes 2 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/team_beta/
+pabot --processes 2 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/tribe_beta/
 ```
 
 #### Common Features Commands (Authentication + API)
@@ -515,7 +515,7 @@ robot --loglevel DEBUG:INFO -d my_reports atests/features/common/
 robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports atests/features/common/
 
 # Run authentication tests only with debugging
-robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/common/auth/
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d my_reports atests/features/common/ui_auth/
 
 # Run API tests only (headless recommended for API tests)
 robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO -d my_reports atests/features/common/api/
@@ -651,7 +651,7 @@ robot -v HEADLESS_FLAG:true atests/
 robot -v HEADLESS_FLAG:true -v LOG_LEVEL:INFO atests/
 
 # Override with specific test execution
-robot -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/team_alpha/
+robot -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports atests/features/tribe_alpha/
 
 # Run tests with headless mode and minimal logging
 robot -v HEADLESS_FLAG:true -v LOG_LEVEL:ERROR -d my_reports ./
@@ -713,7 +713,7 @@ pabot --processes 4 -v HEADLESS_FLAG:true -v LOG_LEVEL:WARN -d my_reports ./
 robot -v HEADLESS_FLAG:false -v LOG_LEVEL:DEBUG -d debug_reports ./
 
 # Team-specific testing with overrides
-robot -v HEADLESS_FLAG:false -v LOG_LEVEL:INFO -d my_reports atests/features/team_alpha/ui_burger_menu_spec/
+robot -v HEADLESS_FLAG:false -v LOG_LEVEL:INFO -d my_reports atests/features/tribe_alpha/ui_burger_menu_spec/
 ```
 
 #### Cross-Browser Testing with Overrides

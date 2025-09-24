@@ -1,6 +1,6 @@
 *** Settings ***
 # Import global configuration, authentication functionality, test data, and custom libraries
-Resource        ../features/common/auth/login_spec/keywords/login_keywords.robot    # Authentication keywords and functionality
+Resource        ../features/common/ui_auth/keywords/ui_auth_keywords.robot    # Authentication keywords and functionality
 Variables       resources/data/mass_of_tests.yaml                           # Test data definitions and test cases
 Library         libraries/baseTests.py                                      # Custom Python library for extended functionality
 

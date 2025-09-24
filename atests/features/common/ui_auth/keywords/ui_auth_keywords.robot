@@ -3,8 +3,8 @@ Library     Browser                         # Playwright browser automation libr
 Library     Collections                     # Python collections library for data operations
 
 # Import base test functionality and page element definitions
-Resource     ../../../../../support/baseTests.robot    # Base test setup and common keywords
-Variables    ../elements/login_page.yaml            # Login page element locators and test data
+Resource     ../../../../support/baseTests.robot    # Base test setup and common keywords
+Variables    ../elements/ui_auth.yaml            # Login page element locators and test data
 
 # =============================================================================
 # Login Keywords Library

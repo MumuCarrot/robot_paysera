@@ -21,7 +21,7 @@ LOGIN_BUTTON: "css=form #login-button"   # Submit button to perform login action
 # POST-LOGIN NAVIGATION ELEMENTS
 # Elements that appear after successful authentication
 INVENTORY_LOCATOR: "css=#inventory_container:first-of-type"  # Main container for product inventory page
-INVENTORY_URL:  "https://www.saucedemo.com/inventory.html"   # Direct URL to inventory page (requires auth)
+INVENTORY_URL:  "https://www.saucedemo.com/inventory.html"   # Direct URL to inventory page (requires ui_auth)
 
 # ERROR MESSAGE CONSTANTS
 # Expected error messages for different login failure scenarios

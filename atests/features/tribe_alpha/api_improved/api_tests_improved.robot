@@ -3,7 +3,7 @@ Library    RequestsLibrary
 Library    Collections
 
 Resource    ../../common/api/keywords/api_tests_keywords.robot
-Resource    ../team_alpha_variables.robot    # Team Alpha specific variables and configuration
+Resource    ../tribe_alpha_variables.robot    # Team Alpha specific variables and configuration
 
 Suite Setup    Create Session    api    http://localhost:3000
 Suite Teardown    Delete All Sessions
