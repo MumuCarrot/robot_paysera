@@ -27,3 +27,28 @@ ${HEADLESS_MODE}         ${HEADLESS_FLAG}                                    # A
 # TEST CONFIGURATION
 # General test execution settings and behavior control
 ${LOG_LEVEL}             %{LOG_LEVEL=DEBUG}                                  # Logging level for test execution - can be overridden via env var
+
+# APPIUM / ANDROID MOBILE WEB CONFIGURATION
+# Settings for Android Chrome automation via Appium
+${APPIUM_SERVER_URL}     %{APPIUM_SERVER_URL=http://localhost:4723/wd/hub}   # Appium server endpoint
+${ANDROID_DEVICE_NAME}   %{ANDROID_DEVICE_NAME=emulator-5554}                 # Device name or UDID
+${APPIUM_AUTOMATION}     %{APPIUM_AUTOMATION=UiAutomator2}                    # Appium automationName
+${MOBILE_BROWSER}        %{MOBILE_BROWSER=Chrome}                             # Mobile browserName
+${CHROMEDRIVER_PATH}     %{CHROMEDRIVER_PATH=C:/Users/okopo4ok/AppData/Roaming/npm/node_modules/chromedriver/lib/chromedriver/chromedriver.exe}
+${CHROMEDRIVER_AUTO}     %{CHROMEDRIVER_AUTO=true}                            # Enable chromedriver auto-download (requires Appium flag)
+
+@{ANDROID_OPEN_ARGS}     platformName=Android
+...                      deviceName=${ANDROID_DEVICE_NAME}
+...                      automationName=${APPIUM_AUTOMATION}
+...                      browserName=${MOBILE_BROWSER}
+...                      chromedriverAutodownload=${CHROMEDRIVER_AUTO}
+...                      appium:chromedriverAutodownload=${CHROMEDRIVER_AUTO}
+...                      chromedriverExecutable=${CHROMEDRIVER_PATH}
+
+&{ANDROID_CAPS}         platformName=Android
+...                      deviceName=${ANDROID_DEVICE_NAME}
+...                      automationName=${APPIUM_AUTOMATION}
+...                      browserName=${MOBILE_BROWSER}
+...                      chromedriverAutodownload=${CHROMEDRIVER_AUTO}
+...                      appium:chromedriverAutodownload=${CHROMEDRIVER_AUTO}
+...                      chromedriverExecutable=${CHROMEDRIVER_PATH}

@@ -8,3 +8,5 @@ robotframework-pabot>=2.15.0
 robotframework-requests>=0.9.7
 pyyaml>=6.0.2
 robotframework-databaselibrary>=1.4.4
+Appium-Python-Client
+robotframework-appiumlibrary
