@@ -65,3 +65,26 @@ ${DIC_EMPTY}                                          # Empty dictionary placeho
 ${EXPECTED_PRODUCT_COUNT}    6                        # Total number of products available in inventory
 ${MIN_CART_ITEMS}           1                        # Minimum items for cart validation
 ${MAX_CART_ITEMS}           6                        # Maximum items that can be added to cart
+
+# APPIUM / ANDROID MOBILE WEB CONFIGURATION
+# Settings for Android Chrome automation via Appium
+${APPIUM_SERVER_URL}     %{APPIUM_SERVER_URL=http://localhost:4723/wd/hub}   # Appium server endpoint
+${ANDROID_DEVICE_NAME}   %{ANDROID_DEVICE_NAME=emulator-5554}                 # Device name or UDID
+${APPIUM_AUTOMATION}     %{APPIUM_AUTOMATION=UiAutomator2}                    # Appium automationName
+
+@{ANDROID_OPEN_ARGS}     platformName=Android
+...                      deviceName=${ANDROID_DEVICE_NAME}
+...                      automationName=${APPIUM_AUTOMATION}
+
+&{ANDROID_CAPS}         platformName=Android
+...                      deviceName=${ANDROID_DEVICE_NAME}
+...                      automationName=${APPIUM_AUTOMATION}
+
+# APPIUM / ANDROID NATIVE APP CONFIGURATION
+# Settings for Android native app automation via Appium
+${ANDROID_APP_PACKAGE}      com.google.android.dialer
+
+&{ANDROID_APP_CAPS}=        platformName=Android
+...                         deviceName=${ANDROID_DEVICE_NAME}
+...                         automationName=${APPIUM_AUTOMATION}
+...                         appPackage=${ANDROID_APP_PACKAGE}

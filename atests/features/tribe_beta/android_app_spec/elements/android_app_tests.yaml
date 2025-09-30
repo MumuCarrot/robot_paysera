@@ -1,0 +1,4 @@
+# Google Dialer Tabs
+FAVORITES_TAB: "xpath=//android.widget.TextView[@text='Favorites']"
+RECENTS_TAB: "xpath=//android.widget.TextView[@text='Recents']"
+CONTACTS_TAB: "xpath=//android.widget.TextView[@text='Contacts']"

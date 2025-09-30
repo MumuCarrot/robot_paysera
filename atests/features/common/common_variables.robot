@@ -52,3 +52,15 @@ ${CHROMEDRIVER_AUTO}     %{CHROMEDRIVER_AUTO=true}                            # 
 ...                      chromedriverAutodownload=${CHROMEDRIVER_AUTO}
 ...                      appium:chromedriverAutodownload=${CHROMEDRIVER_AUTO}
 ...                      chromedriverExecutable=${CHROMEDRIVER_PATH}
+
+# APPIUM / IOS MOBILE WEB CONFIGURATION
+# Settings for iOS Safari automation via Appium
+${IOS_DEVICE_NAME}       %{IOS_DEVICE_NAME=iPhone 14}          # iOS device name (e.g. from Xcode)
+${IOS_PLATFORM_VERSION}  %{IOS_PLATFORM_VERSION=16.2}          # iOS version
+${IOS_AUTOMATION}        %{IOS_AUTOMATION=XCUITest}            # iOS automation engine
+
+&{IOS_CAPS}=             platformName=iOS
+...                      platformVersion=${IOS_PLATFORM_VERSION}
+...                      deviceName=${IOS_DEVICE_NAME}
+...                      browserName=Safari
+...                      automationName=${IOS_AUTOMATION}
