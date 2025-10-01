@@ -1,9 +1,9 @@
 *** Settings ***
 Resource         keywords/android_app_keywords.robot
 Library          AppiumLibrary    timeout=30s
-
+Resource         ../../../support/resources/appium_screenshot_helpers.robot
 Test Setup       Start Session
-Test Teardown    End Session
+Test Teardown    Run Keywords    Capture Appium Screenshot And Attach    ${TEST_NAME}    AND    End Session
 
 *** Test Cases ***
 Scenario - As User, I Can See Contacts Tab Upon Opening App

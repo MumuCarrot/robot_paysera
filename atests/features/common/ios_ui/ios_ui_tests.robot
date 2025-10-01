@@ -5,7 +5,8 @@ Library    AppiumLibrary
 Resource   ../common_variables.robot
 Variables  ../ui_auth/elements/ui_auth.yaml
 Variables  ../../../support/resources/data/mass_of_tests.yaml
-Test Teardown    Close All Applications
+Resource   ../../../support/resources/appium_screenshot_helpers.robot
+Test Teardown    Run Keywords    Capture Appium Screenshot And Attach    ${TEST_NAME}    AND    Close All Applications
 
 *** Test Cases ***
 iOS Mobile Web - Open SauceDemo Home

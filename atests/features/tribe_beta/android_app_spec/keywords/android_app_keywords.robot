@@ -2,6 +2,7 @@
 Resource         ../../tribe_beta_variables.robot
 Variables        ../elements/android_app_tests.yaml
 Library          AppiumLibrary    timeout=30s
+Resource         ../../../../support/resources/appium_screenshot_helpers.robot
 
 *** Keywords ***
 Start Session
