@@ -6,6 +6,7 @@ Resource         ../../../../support/resources/appium_screenshot_helpers.robot
 
 *** Keywords ***
 Start Session
+    BaseLib.Start Appium
     Open Application    ${APPIUM_SERVER_URL}    &{ANDROID_APP_CAPS}
 
 End Session
